@@ -1,12 +1,21 @@
 model User {
-    id    Int    @id @default(autoincrement())
-    email String @unique
-    name  String
+    id          Int    @id @default(autoincrement())
+    email       String @unique
+    password    String
+    name        String
+    phoneNumber String @unique
 
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
     posts     Post[]
 
+    RefreshToken RefreshToken[]
 }
 
-
+model RefreshToken {
+    token     String   @unique
+    expireIn  DateTime
+    createdAt DateTime @default(now())
+    userId    Int
+    user      User     @relation(fields: [userId], references: [id])
+}
