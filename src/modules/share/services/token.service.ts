@@ -2,7 +2,11 @@ import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
 import { EnvService } from './env.service';
 import { User } from 'generated/prisma';
-import { AccessTokenPayload, RefreshtokenPayload } from '../auth/auth.type';
+import {
+  AccessTokenPayload,
+  AdditionTokenPayload,
+  RefreshtokenPayload,
+} from '../../auth/auth.type';
 
 @Injectable()
 export class TokenService {
@@ -48,11 +52,7 @@ export class TokenService {
     });
   }
 
-  decodeToken(token: string): AccessTokenPayload & {
-    iat: number;
-    exp: number;
-    jti: string;
-  } {
+  decodeToken(token: string): AccessTokenPayload & AdditionTokenPayload {
     return this.jwtService.decode(token);
   }
 }

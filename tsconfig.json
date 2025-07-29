@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "declaration": true,  
+    "declaration": true,
     "removeComments": true,
     "esModuleInterop": true,
     "emitDecoratorMetadata": true,
@@ -18,5 +18,5 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false
-  }
+  },
 }

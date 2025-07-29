@@ -1,0 +1,69 @@
+model Language {
+    id        Int       @id @default(autoincrement())
+    name      String
+    code      String    @unique @db.VarChar(10)
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    userTranslations     UserTranslation[]
+    productTranslations  ProductTranslation[]
+    categoryTranslations CategoryTranslation[]
+    brandTranslations    BrandTranslation[]
+}
+
+model UserTranslation {
+    id         Int       @id @default(autoincrement())
+    address    String?
+    desc       String?
+    userId     Int
+    languageId Int
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    deletedAt  DateTime?
+
+    user     User     @relation(fields: [userId], references: [id])
+    language Language @relation(fields: [languageId], references: [id])
+}
+
+model ProductTranslation {
+    id         Int       @id @default(autoincrement())
+    name       String
+    desc       String?
+    productId  Int
+    languageId Int
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    deletedAt  DateTime?
+
+    product  Product  @relation(fields: [productId], references: [id])
+    language Language @relation(fields: [languageId], references: [id])
+}
+
+model CategoryTranslation {
+    id         Int       @id @default(autoincrement())
+    name       String
+    desc       String?
+    categoryId Int
+    languageId Int
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    deletedAt  DateTime?
+
+    category Category @relation(fields: [categoryId], references: [id])
+    language Language @relation(fields: [languageId], references: [id])
+}
+
+model BrandTranslation {
+    id         Int       @id @default(autoincrement())
+    name       String
+    desc       String?
+    brandId    Int
+    languageId Int
+    createdAt  DateTime  @default(now())
+    updatedAt  DateTime  @updatedAt
+    deletedAt  DateTime?
+
+    brand    Brand    @relation(fields: [brandId], references: [id])
+    language Language @relation(fields: [languageId], references: [id])
+}

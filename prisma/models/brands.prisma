@@ -1,0 +1,10 @@
+model Brand {
+    id        Int       @id @default(autoincrement())
+    logo      String
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    brandTranslations BrandTranslation[]
+    products     Product[]
+}

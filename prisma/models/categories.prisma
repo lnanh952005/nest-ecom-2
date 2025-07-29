@@ -1,0 +1,12 @@
+model Category {
+    id             Int       @id @default(autoincrement())
+    parentCategory Int?
+    createdAt      DateTime  @default(now())
+    updatedAt      DateTime  @updatedAt
+    deletedAt      DateTime?
+
+    parent               Category?             @relation("CategoryParent", fields: [parentCategory], references: [id])
+    children             Category[]            @relation("CategoryParent")
+    categoryTranslations CategoryTranslation[]
+    productCategories    ProductCategory[]
+}

@@ -1,0 +1,50 @@
+model Variant {
+    id        Int       @id @default(autoincrement())
+    name      String
+    productId Int
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    product       Product         @relation(fields: [productId], references: [id])
+    variantOption VariantOption[]
+}
+
+model VariantOption {
+    id        Int       @id @default(autoincrement())
+    value     String
+    variantId Int
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    variant          Variant            @relation(fields: [variantId], references: [id])
+    skuVariantOption SkuVariantOption[]
+}
+
+model Sku {
+    id        Int       @id @default(autoincrement())
+    value     String
+    price     Float
+    stock     Int
+    images    String[]
+    productId Int
+    createdAt DateTime  @default(now())
+    updatedAt DateTime  @updatedAt
+    deletedAt DateTime?
+
+    product             Product              @relation(fields: [productId], references: [id])
+    skuVariantOptions   SkuVariantOption[]
+    productSkuSnapshots ProductSkuSnapshot[]
+    cartItems           CartItem[]
+}
+
+model SkuVariantOption {
+    skuId           Int
+    variantOptionId Int
+
+    sku           Sku           @relation(fields: [skuId], references: [id])
+    variantOption VariantOption @relation(fields: [variantOptionId], references: [id])
+
+    @@id([skuId, variantOptionId])
+}

@@ -1,14 +1,26 @@
-import { Global, Module } from '@nestjs/common';
-import { PrismaService } from './prisma.service';
-import { PasswordEncoderService } from './passwordEncoder.service';
 import { JwtModule } from '@nestjs/jwt';
-import { TokenService } from './token.service';
-import { EnvService } from './env.service';
+import { Global, Module } from '@nestjs/common';
+
+import { EnvService } from './services/env.service';
+import { TokenService } from './services/token.service';
+import { PrismaService } from './services/prisma.service';
+import { UserRepository } from './repositories/user.repository';
+import { RoleRepository } from './repositories/role.repository';
+import { PasswordEncoderService } from './services/passwordEncoder.service';
+import { VerificationCodeRepository } from './repositories/verificationCode.repository';
+
+const Service = [
+  PrismaService,
+  PasswordEncoderService,
+  TokenService,
+  EnvService,
+];
+const Repository = [UserRepository, RoleRepository, VerificationCodeRepository];
 
 @Global()
 @Module({
   imports: [JwtModule],
-  providers: [PrismaService, PasswordEncoderService, TokenService,EnvService],
-  exports: [PrismaService, PasswordEncoderService, TokenService,EnvService],
+  providers: [...Service, ...Repository],
+  exports: [...Service, ...Repository],
 })
 export class ShareModule {}
