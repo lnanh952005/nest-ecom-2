@@ -1,5 +1,6 @@
+import { RoleEnum } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import { RoleEnum } from 'generated/prisma';
+
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
 @Injectable()

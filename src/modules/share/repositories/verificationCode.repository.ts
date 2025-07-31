@@ -1,5 +1,5 @@
+import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma';
 import { PrismaService } from '../services/prisma.service';
 
 @Injectable()
@@ -35,28 +35,14 @@ export class VerificationCodeRepository {
     update,
   }: {
     where: Prisma.VerificationCodeWhereUniqueInput;
-    create:
-      | (Prisma.Without<
-          Prisma.VerificationCodeCreateInput,
-          Prisma.VerificationCodeUncheckedCreateInput
-        > &
-          Prisma.VerificationCodeUncheckedCreateInput)
-      | (Prisma.Without<
-          Prisma.VerificationCodeUncheckedCreateInput,
-          Prisma.VerificationCodeCreateInput
-        > &
-          Prisma.VerificationCodeCreateInput);
-    update:
-      | (Prisma.Without<
-          Prisma.VerificationCodeUpdateInput,
-          Prisma.VerificationCodeUncheckedUpdateInput
-        > &
-          Prisma.VerificationCodeUncheckedUpdateInput)
-      | (Prisma.Without<
-          Prisma.VerificationCodeUncheckedUpdateInput,
-          Prisma.VerificationCodeUpdateInput
-        > &
-          Prisma.VerificationCodeUpdateInput);
+    create: Prisma.XOR<
+      Prisma.VerificationCodeCreateInput,
+      Prisma.VerificationCodeUncheckedCreateInput
+    >;
+    update: Prisma.XOR<
+      Prisma.VerificationCodeUpdateInput,
+      Prisma.VerificationCodeUncheckedUpdateInput
+    >;
   }) {
     return await this.prismaService.verificationCode.upsert({
       where: {

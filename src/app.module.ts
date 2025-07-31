@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -10,6 +10,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { UserModule } from './modules/user/user.module';
 import { CustomZodValidationPipe } from './pipes/customZodValidation.pipe';
+import { HttpExceptionFilter } from './filters/httpException.filter';
 
 @Module({
   imports: [ShareModule, AuthModule,UserModule],
@@ -28,10 +29,10 @@ import { CustomZodValidationPipe } from './pipes/customZodValidation.pipe';
       provide: APP_INTERCEPTOR,
       useClass: TransformInterceptor,
     },
-    // {
-    //   provide: APP_FILTER,
-    //   useClass: HttpExceptionFilter,
-    // },
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
   ],
 })
 export class AppModule {}

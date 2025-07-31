@@ -3,7 +3,7 @@ model User {
     email       String     @unique
     password    String
     name        String
-    phoneNumber String     @unique
+    phoneNumber String?     @unique
     avatar      String?
     totpSecret  String?
     status      UserStatus @default(ACTIVE)
@@ -19,13 +19,16 @@ model User {
     fromUser         Message[]         @relation("FromUser")
     toUser           Message[]         @relation("ToUser")
     userTranslations UserTranslation[]
+    devices          Device[]
 }
 
 model RefreshToken {
     token     String   @unique
     userId    Int
+    deviceId  Int
     createdAt DateTime @default(now())
     expireAt  DateTime
 
-    user User @relation(fields: [userId], references: [id])
+    user   User   @relation(fields: [userId], references: [id])
+    device Device @relation(fields: [deviceId], references: [id])
 }

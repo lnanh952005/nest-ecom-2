@@ -1,7 +1,7 @@
+import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'generated/prisma';
 import { PrismaService } from '../services/prisma.service';
-import { UpdateUser } from 'src/modules/user/user.dto';
+import { DefaultArgs } from '@prisma/client/runtime/library';
 
 @Injectable()
 export class UserRepository {
@@ -35,30 +35,32 @@ export class UserRepository {
     });
   }
 
-  async updateByid(id: number, updateUser: UpdateUser) {
-    await this.prismaService.user.update({
-      where: { id },
+  async create(
+    data: Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>,
+    include?: Prisma.UserInclude<DefaultArgs>,
+  ) {
+    return await this.prismaService.user.create({
       data: {
-        ...updateUser,
+        ...data,
+      },
+      include: {
+        ...include,
       },
     });
   }
 
-  async createUser(
-    user:
-      | (Prisma.Without<
-          Prisma.UserCreateInput,
-          Prisma.UserUncheckedCreateInput
-        > &
-          Prisma.UserUncheckedCreateInput)
-      | (Prisma.Without<
-          Prisma.UserUncheckedCreateInput,
-          Prisma.UserCreateInput
-        > &
-          Prisma.UserCreateInput),
-  ) {
-    return await this.prismaService.user.create({
-      data: user,
+  async updateById({
+    id,
+    data,
+  }: {
+    id: number;
+    data: Prisma.XOR<Prisma.UserUpdateInput, Prisma.UserUncheckedUpdateInput>;
+  }) {
+    return await this.prismaService.user.update({
+      where: { id },
+      data: {
+        ...data,
+      },
     });
   }
 }

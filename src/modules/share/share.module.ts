@@ -8,6 +8,8 @@ import { UserRepository } from './repositories/user.repository';
 import { RoleRepository } from './repositories/role.repository';
 import { PasswordEncoderService } from './services/passwordEncoder.service';
 import { VerificationCodeRepository } from './repositories/verificationCode.repository';
+import { RefreshTokenRepository } from './repositories/refreshToken.repository';
+import { DeviceRepository } from './repositories/device.repository';
 
 const Service = [
   PrismaService,
@@ -15,7 +17,13 @@ const Service = [
   TokenService,
   EnvService,
 ];
-const Repository = [UserRepository, RoleRepository, VerificationCodeRepository];
+const Repository = [
+  UserRepository,
+  RoleRepository,
+  VerificationCodeRepository,
+  RefreshTokenRepository,
+  DeviceRepository
+];
 
 @Global()
 @Module({

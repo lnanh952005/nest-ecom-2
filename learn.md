@@ -29,3 +29,6 @@ cách này tốn TG, chi phí và k hiệu quả. Vì dễ bị các hệ thốn
 ## 2. Sử dụng dịch vụ của các công ty cung cấp DV email như AWS SES, SendGrid, Mailgun, Resend,....
 
 cách này HQ hơn,chi phí thấp, dễ sử dụng, hỗ trợ nhiều tính năng như gửi email theo hàng loạt ,theo dõi email, chống spam,...
+
+# from: ecommerce <nhatanh@nhatanh.top> ecommerce: tên người gửi
+# from: nhatanh@nhatanh.top  nhatanh trước @ là tên người gửi

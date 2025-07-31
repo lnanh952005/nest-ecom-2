@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Patch } from '@nestjs/common';
+import { UpdateUser } from './user.dto';
 import { UserService } from './user.service';
 import { userListSerialization, userSerialization } from './user.model';
-import { UpdateUser } from './user.dto';
 
 @Controller('users')
 export class UserController {
@@ -19,6 +19,6 @@ export class UserController {
 
   @Patch(':id')
   async updateById(@Param('id') id: string, @Body() body: UpdateUser) {
-    return await this.userSerice.updateById(+id, body);
+    return await this.userSerice.updateById({ id: +id, data: body });
   }
 }

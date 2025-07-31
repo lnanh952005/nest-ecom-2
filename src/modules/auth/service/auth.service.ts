@@ -1,191 +1,212 @@
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-  UnprocessableEntityException,
-} from '@nestjs/common';
-import ms, { StringValue } from 'ms';
+import { Role } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
+import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 
-import { Role } from 'generated/prisma';
-import { EnvService } from '../../share/services/env.service';
-import { TokenService } from '../../share/services/token.service';
-import { PrismaService } from '../../share/services/prisma.service';
-import { createOtpCode } from '../../share/utils/createOtpCode.util';
-import { RoleRepository } from '../../share/repositories/role.repository';
-import { UserRepository } from '../../share/repositories/user.repository';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
 import {
+  ForgotPasswordDto,
   LoginDto,
   RefreshTokenDto,
   RegisterDto,
-  SendOtpDto,
 } from '../auth.dto';
+import {
+  EmailNotFoundException,
+  InvalidRefreshTokenException,
+  RefreshTokenExpiredException,
+  RefreshTokenNotFoundException,
+  UserNotFoundException,
+} from '../auth.error';
+import { TokenService } from '../../share/services/token.service';
+import { VerificationCodeService } from './verificationCode.service';
+import { UserRepository } from '../../share/repositories/user.repository';
+import { RoleRepository } from '../../share/repositories/role.repository';
+import { DeviceRepository } from 'src/modules/share/repositories/device.repository';
 import { PasswordEncoderService } from '../../share/services/passwordEncoder.service';
-import { VerificationCodeRepository } from '../../share/repositories/verificationCode.repository';
-import { EmailService } from './email.service';
+import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private prismaService: PrismaService,
-    private envService: EnvService,
-    private emailService: EmailService,
     private tokenService: TokenService,
     private userRepository: UserRepository,
     private roleRepository: RoleRepository,
-    private verificationCodeRepository: VerificationCodeRepository,
+    private deviceRepository: DeviceRepository,
+    private refreshTokenRepository: RefreshTokenRepository,
     private passwordEncoderService: PasswordEncoderService,
+    private verificationCodeService: VerificationCodeService,
   ) {}
-
-  async register({ email, password, phoneNumber, name, code }: RegisterDto) {
-    const verificationCode =
-      await this.verificationCodeRepository.findByEmailAndCodeAndType({
-        code,
-        email,
-        type: 'REGISTER',
-      });
-
-    if (!verificationCode) {
-      throw new UnprocessableEntityException('invalid otp code');
-    }
-
-    if (verificationCode.expireAt < new Date()) {
-      throw new UnprocessableEntityException('otp code has expired');
-    }
-
-    const isPhone =
-      await this.userRepository.isPhoneNumberExisting(phoneNumber);
-
-    if (isPhone) {
-      throw new ConflictException('phone number already existed');
-    }
-
-    const clientRole = (await this.roleRepository.findByName('CLIENT')) as Role;
-    const [user] = await Promise.all([
-      this.userRepository.createUser({
-        email,
-        name,
-        password,
-        phoneNumber,
-        roleId: clientRole.id,
-      }),
-      this.verificationCodeRepository.deleteById(verificationCode.id),
-    ]);
-    return user;
-  }
-
-  async login({ email, password }: LoginDto) {
-    try {
-      const user = await this.prismaService.user.findUniqueOrThrow({
-        where: {
-          email,
-        },
-      });
-      const isMatching = await this.passwordEncoderService.compare(
-        password,
-        user.password,
-      );
-      if (!isMatching) {
-        throw new Error('password not equal');
-      }
-      const [accessToken, refreshToken] =
-        await this.tokenService.createTokens(user);
-      const { exp } = this.tokenService.decodeToken(refreshToken);
-      await this.prismaService.refreshToken.create({
-        data: {
-          token: refreshToken,
-          expireAt: new Date(exp * 1000),
-          userId: user.id,
-        },
-      });
-      return { accessToken, refreshToken };
-    } catch (error) {
-      console.log(error);
-      throw new UnauthorizedException('user not found');
-    }
-  }
-
-  async refresh({ token }: RefreshTokenDto) {
-    try {
-      const { userId } = await this.tokenService.verifyRefreshToken(token);
-      await this.prismaService.refreshToken.findUniqueOrThrow({
-        where: {
-          token,
-        },
-      });
-      const user = await this.prismaService.user.findUniqueOrThrow({
-        where: {
-          id: userId,
-        },
-      });
-      const [accessToken, refreshToken] =
-        await this.tokenService.createTokens(user);
-      const { exp } = this.tokenService.decodeToken(refreshToken);
-      this.prismaService.refreshToken.create({
-        data: {
-          token: refreshToken,
-          userId: user.id,
-          expireAt: new Date(exp * 1000),
-        },
-      });
-      return { accessToken, refreshToken };
-    } catch (error) {
-      // đã refresh token rồi, thông báo cho user biết token của họ bị đánh cắp
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code == 'P2025'
-      ) {
-        throw new UnauthorizedException('refresh token has been revoked');
-      }
-      throw new UnauthorizedException('invalid refresh token');
-    }
-  }
-
-  async logout({ token }: RefreshTokenDto) {
-    await this.prismaService.refreshToken.delete({
-      where: {
-        token,
-      },
-    });
-  }
 
   async getProfile(id: number) {
     return await this.userRepository.findById(id);
   }
 
-  async sendOtp({ email, type }: SendOtpDto) {
-    const isEmail = await this.userRepository.findByEmail(email);
-    if (isEmail) {
-      throw new ConflictException('email already existed');
+  async register({ email, password, name, code }: RegisterDto) {
+    const verificationCode = await this.verificationCodeService.validate({
+      code,
+      email,
+      type: 'REGISTER',
+    });
+
+    const clientRole = (await this.roleRepository.findByName('CLIENT')) as Role;
+    const hashedPassword = await this.passwordEncoderService.hash(password);
+    const [user] = await Promise.all([
+      this.userRepository.create({
+        email,
+        name,
+        password: hashedPassword,
+        roleId: clientRole.id,
+      }),
+      this.verificationCodeService.deleteById(verificationCode.id),
+    ]);
+    return user;
+  }
+
+  async login({
+    body,
+    ip,
+    userAgent,
+  }: {
+    body: LoginDto;
+    userAgent: string;
+    ip: string;
+  }) {
+    const user = await this.userRepository.findByEmail(body.email);
+    if (!user) {
+      throw EmailNotFoundException;
     }
-    const code = createOtpCode();
-    const expireAt = new Date(
-      Date.now() + ms(this.envService.OTP_EXPIRE as StringValue),
+    const isMatching = await this.passwordEncoderService.compare(
+      body.password,
+      user.password,
     );
-    const { error } = await this.emailService.sendOtpCode({
-      toEmail: 'lnanh952005@gmail.com',
-      otpCode: code,
-    });
-    if (error) {
-      throw new BadRequestException([{
-        ...error,
-      }]);
+    if (!isMatching) {
+      throw EmailNotFoundException;
     }
-    return await this.verificationCodeRepository.upsertVerificationCode({
-      where: {
-        email,
-      },
-      create: {
-        code,
-        email,
-        type,
-        expireAt,
-      },
-      update: {
-        code,
-        expireAt,
-      },
+
+    const device = await this.deviceRepository.create({
+      ip,
+      userAgent,
+      userId: user.id,
     });
+    const [accessToken, refreshToken] = await this.tokenService.createTokens({
+      userId: user.id,
+      email: user.email,
+      roleId: user.roleId,
+      deviceId: device.id,
+    });
+    const { exp } = this.tokenService.decodeToken(refreshToken);
+    await this.refreshTokenRepository.create({
+      token: refreshToken,
+      expireAt: new Date(exp * 1000),
+      userId: user.id,
+      deviceId: device.id,
+    });
+    return { accessToken, refreshToken };
+  }
+
+  async refresh({
+    token,
+    ip,
+    userAgent,
+  }: RefreshTokenDto & {
+    ip: string;
+    userAgent: string;
+  }) {
+    try {
+      const { userId } = await this.tokenService.verifyRefreshToken(token);
+      const user = await this.userRepository.findById(userId);
+      if (!user) {
+        throw UserNotFoundException;
+      }
+
+      const tokenInDb = await this.refreshTokenRepository.findByToken(token);
+
+      if (!tokenInDb) {
+        // đã refresh token rồi, thông báo cho user biết token của họ bị đánh cắp
+        throw RefreshTokenNotFoundException;
+      }
+
+      const $updateDevice = this.deviceRepository.updateById({
+        id: tokenInDb.deviceId,
+        data: {
+          ip,
+          userAgent,
+        },
+      });
+
+      const $deleteRefreshToken =
+        this.refreshTokenRepository.deleteByToken(token);
+
+      const $tokens = this.tokenService.createTokens({
+        userId: user.id,
+        email: user.email,
+        roleId: user.roleId,
+        deviceId: tokenInDb.deviceId,
+      });
+
+      const [[accessToken, refreshToken]] = await Promise.all([
+        $tokens,
+        $updateDevice,
+        $deleteRefreshToken,
+      ]);
+      const { exp } = this.tokenService.decodeToken(refreshToken);
+      await this.refreshTokenRepository.create({
+        token: refreshToken,
+        userId: user.id,
+        expireAt: new Date(exp * 1000),
+        deviceId: tokenInDb.deviceId,
+      });
+      return { accessToken, refreshToken };
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw RefreshTokenExpiredException;
+      } else if (error instanceof JsonWebTokenError) {
+        throw InvalidRefreshTokenException;
+      }
+      throw error;
+    }
+  }
+
+  async logout({ token }: RefreshTokenDto) {
+    try {
+      await this.tokenService.verifyRefreshToken(token);
+      const { deviceId } =
+        await this.refreshTokenRepository.deleteByToken(token);
+
+      await this.deviceRepository.updateById({
+        id: deviceId,
+        data: {
+          isActive: false,
+        },
+      });
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw RefreshTokenExpiredException;
+      } else if (error instanceof JsonWebTokenError) {
+        throw InvalidRefreshTokenException;
+      }
+      throw error;
+    }
+  }
+
+  async forgotPassword({ code, email, newPassword }: ForgotPasswordDto) {
+    const verificationCode = await this.verificationCodeService.validate({
+      code,
+      email,
+      type: 'FORGOT_PASSWORD',
+    });
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) {
+      throw EmailNotFoundException;
+    }
+    const hashedPassword = await this.passwordEncoderService.hash(newPassword);
+    const [updatedUser] = await Promise.all([
+      this.userRepository.updateById({
+        id: user.id,
+        data: {
+          password: hashedPassword,
+        },
+      }),
+      this.verificationCodeService.deleteById(verificationCode.id),
+    ]);
+    return updatedUser;
   }
 }

@@ -1,12 +1,11 @@
-import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
-import { EnvService } from './env.service';
-import { User } from 'generated/prisma';
+import { JwtService } from '@nestjs/jwt';
 import {
-  AccessTokenPayload,
   AdditionTokenPayload,
-  RefreshtokenPayload,
+  AccessTokenPayload,
+  RefreshTokenPayload,
 } from '../../auth/auth.type';
+import { EnvService } from './env.service';
 
 @Injectable()
 export class TokenService {
@@ -15,24 +14,24 @@ export class TokenService {
     private envService: EnvService,
   ) {}
 
-  async createTokens(user: User) {
-    const payloadAccess: AccessTokenPayload = {
-      userId: user.id,
-      name: user.name,
-      email: user.email,
-      phoneNumber: user.phoneNumber,
+  async createTokens({ email, roleId, userId, deviceId }: AccessTokenPayload) {
+    const accessPayload: AccessTokenPayload = {
+      userId,
+      email,
+      roleId,
+      deviceId,
     };
-    const payloadRefresh = {
-      userId: user.id,
-      email: user.email,
+    const refreshPayload: RefreshTokenPayload = {
+      userId,
     };
+
     return Promise.all([
-      this.jwtService.sign(payloadAccess, {
+      this.jwtService.sign(accessPayload, {
         secret: this.envService.ACCESS_TOKEN_KEY,
         expiresIn: this.envService.ACCESS_TOKEN_EXPIRE,
         jwtid: crypto.randomUUID(),
       }),
-      this.jwtService.sign(payloadRefresh, {
+      this.jwtService.sign(refreshPayload, {
         secret: this.envService.REFRESH_TOKEN_KEY,
         expiresIn: this.envService.REFRESH_TOKEN_EXPIRE,
         jwtid: crypto.randomUUID(),
@@ -46,7 +45,7 @@ export class TokenService {
     });
   }
 
-  async verifyRefreshToken(token: string): Promise<RefreshtokenPayload> {
+  async verifyRefreshToken(token: string): Promise<RefreshTokenPayload> {
     return await this.jwtService.verify(token, {
       secret: this.envService.REFRESH_TOKEN_KEY,
     });

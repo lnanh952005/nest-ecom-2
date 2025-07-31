@@ -1,5 +1,5 @@
 import z from 'zod';
-import { UserStatus } from 'generated/prisma';
+import { UserStatus } from '@prisma/client';
 
 const userSchema = z.object({
   id: z.number(),

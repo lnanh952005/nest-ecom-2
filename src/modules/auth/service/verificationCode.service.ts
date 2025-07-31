@@ -1,0 +1,37 @@
+import { Injectable } from '@nestjs/common';
+import { VerificationType } from '@prisma/client';
+import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
+import { InvalidOtpException, OtpExpiredException } from '../auth.error';
+
+@Injectable()
+export class VerificationCodeService {
+  constructor(private verificationCodeRepository: VerificationCodeRepository) {}
+
+  async deleteById(id: number) {
+    await this.verificationCodeRepository.deleteById(id);
+  }
+
+  async validate({
+    email,
+    code,
+    type,
+  }: {
+    email: string;
+    code: string;
+    type: VerificationType;
+  }) {
+    const verificationCode =
+      await this.verificationCodeRepository.findByEmailAndCodeAndType({
+        code,
+        email,
+        type,
+      });
+    if (!verificationCode) {
+      throw InvalidOtpException;
+    }
+    if (verificationCode.expireAt < new Date()) {
+      throw OtpExpiredException;
+    }
+    return verificationCode;
+  }
+}

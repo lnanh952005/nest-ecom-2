@@ -1,6 +1,5 @@
+import { VerificationType } from '@prisma/client';
 import z from 'zod';
-import { userSerialization } from '../user/user.model';
-import { VerificationType } from 'generated/prisma';
 
 export const loginSchema = z.strictObject({
   email: z.string().email(),
@@ -9,8 +8,7 @@ export const loginSchema = z.strictObject({
 
 export const registerSchema = loginSchema.extend({
   name: z.string(),
-  phoneNumber: z.string(),
-  code: z.string().length(6)
+  code: z.string().length(6),
 });
 
 export const refreshSchema = z.strictObject({
@@ -22,9 +20,15 @@ export const sendOtpSchema = z.strictObject({
   type: z.nativeEnum(VerificationType),
 });
 
-export const profileSerialization = userSerialization.omit({
-  createdAt: true,
-  updatedAt: true,
-  status: true,
-  roleId: true,
+export const forgotPasswordSchema = z.strictObject({
+  email: z.string().email(),
+  code: z.string(),
+  newPassword: z.string().min(6).max(30),
+});
+
+export const profileSerialization = z.object({
+  email: z.string(),
+  name: z.string(),
+  phoneNumber: z.string(),
+  avatar: z.string().nullable(),
 });

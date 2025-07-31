@@ -24,26 +24,28 @@ export class UserService {
     return await this.userRepository.findById(id);
   }
 
-  async updateById(id: number, updateUser: UpdateUser) {
-    if (updateUser.phoneNumber) {
+  async findByEmail(email: string) {
+    return this.userRepository.findByEmail(email);
+  }
+
+  async updateById({ id, data }: { id: number; data: UpdateUser }) {
+    if (data.phoneNumber) {
       const isPhone = await this.userRepository.isPhoneNumberExisting(
-        updateUser.phoneNumber,
+        data.phoneNumber,
       );
       if (isPhone) {
         throw new ConflictException('phone number already existed');
       }
     }
-    if (updateUser.password) {
-      updateUser.password = await this.passwordEncoderService.hash(
-        updateUser.password,
-      );
+    if (data.password) {
+      data.password = await this.passwordEncoderService.hash(data.password);
     }
-    if (updateUser.roleId) {
-      const role = await this.roleRepository.findById(updateUser.roleId);
+    if (data.roleId) {
+      const role = await this.roleRepository.findById(data.roleId);
       if (!role) {
         throw new BadRequestException('role not found');
       }
     }
-    await this.userRepository.updateByid(id, updateUser);
+    await this.userRepository.updateById({ id, data: data });
   }
 }

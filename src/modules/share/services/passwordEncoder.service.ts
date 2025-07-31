@@ -12,4 +12,8 @@ export class PasswordEncoderService {
   async compare(password: string, encrypted: string) {
     return await bcrypt.compare(password, encrypted);
   }
+
+  randomPassword(){
+    return crypto.randomUUID();
+  }
 }
