@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
@@ -6,15 +5,13 @@ import { PrismaService } from 'src/modules/share/services/prisma.service';
 export class RefreshTokenRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async create(
-    data: Prisma.XOR<
-      Prisma.RefreshTokenCreateInput,
-      Prisma.RefreshTokenUncheckedCreateInput
-    >,
-  ) {
-    await this.prismaService.refreshToken.create({
-      data,
-    });
+  async create(data: {
+    token: string;
+    expireAt: Date;
+    userId: number;
+    deviceId: number;
+  }) {
+    return await this.prismaService.refreshToken.create({ data });
   }
 
   async findById(id: number) {
@@ -29,7 +26,7 @@ export class RefreshTokenRepository {
     return await this.prismaService.refreshToken.findUnique({
       where: {
         token,
-      }
+      },
     });
   }
 

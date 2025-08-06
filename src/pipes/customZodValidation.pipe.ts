@@ -1,5 +1,5 @@
 import { ZodError } from 'zod';
-import { createZodValidationPipe } from 'nestjs-zod';
+import { createZodValidationPipe, ZodSerializerDto } from 'nestjs-zod';
 import { UnprocessableEntityException } from '@nestjs/common';
 
 export const CustomZodValidationPipe = createZodValidationPipe({

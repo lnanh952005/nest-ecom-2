@@ -1,17 +1,16 @@
-import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
+import { VerificationType } from '@prisma/client';
 import { PrismaService } from '../services/prisma.service';
 
 @Injectable()
 export class VerificationCodeRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async findByEmailAndCodeAndType(
-    data: Pick<
-      Prisma.VerificationCodeWhereUniqueInput,
-      'email' | 'type' | 'code'
-    >,
-  ) {
+  async findByEmailAndCodeAndType(data: {
+    email: string;
+    type: VerificationType;
+    code: string;
+  }) {
     return await this.prismaService.verificationCode.findUnique({
       where: {
         email: data.email,
@@ -34,26 +33,22 @@ export class VerificationCodeRepository {
     create,
     update,
   }: {
-    where: Prisma.VerificationCodeWhereUniqueInput;
-    create: Prisma.XOR<
-      Prisma.VerificationCodeCreateInput,
-      Prisma.VerificationCodeUncheckedCreateInput
-    >;
-    update: Prisma.XOR<
-      Prisma.VerificationCodeUpdateInput,
-      Prisma.VerificationCodeUncheckedUpdateInput
-    >;
+    where: { email: string; type: VerificationType };
+    create: {
+      email: string;
+      type: VerificationType;
+      code: string;
+      expireAt: Date;
+    };
+    update: {
+      code: string;
+      expireAt: Date;
+    };
   }) {
     return await this.prismaService.verificationCode.upsert({
-      where: {
-        ...where,
-      },
-      create: {
-        ...create,
-      },
-      update: {
-        ...update,
-      },
+      where,
+      create,
+      update,
     });
   }
 }

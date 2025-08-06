@@ -31,4 +31,28 @@ cách này tốn TG, chi phí và k hiệu quả. Vì dễ bị các hệ thốn
 cách này HQ hơn,chi phí thấp, dễ sử dụng, hỗ trợ nhiều tính năng như gửi email theo hàng loạt ,theo dõi email, chống spam,...
 
 # from: ecommerce <nhatanh@nhatanh.top> ecommerce: tên người gửi
-# from: nhatanh@nhatanh.top  nhatanh trước @ là tên người gửi
+
+# from: nhatanh@nhatanh.top nhatanh trước @ là tên người gửi
+
+✅ Mô hình hoạt động phổ biến nhất: TOTP (Time-based One-Time Password)
+🧩 Tổng quan:
+
+1. Khi user bật 2FA:
+
+   Server tạo secret key (chuỗi base32), lưu vào DB của user.
+
+   Server gửi mã QR chứa secret đó → user quét bằng app (Google Authenticator, Authy,...).
+
+2.App di động tạo mã OTP mới mỗi ~30 giây dựa trên:
+
+    Secret key
+
+    Thời gian hiện tại
+
+3.Khi login, sau bước nhập mật khẩu đúng:
+
+    Server yêu cầu user nhập mã OTP hiện tại.
+
+    Server tự tính mã OTP (dùng secret đã lưu) → so sánh với mã user nhập.
+
+    Nếu khớp → ✅ xác thực thành công.

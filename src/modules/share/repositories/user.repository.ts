@@ -1,7 +1,10 @@
-import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
+import {
+  CreateUserDtoType,
+  UpdateUserDtoType,
+} from 'src/modules/user/user.type';
 import { PrismaService } from '../services/prisma.service';
-import { DefaultArgs } from '@prisma/client/runtime/library';
+import { UpdateProfileDtoType } from 'src/modules/profile/profile.type';
 
 @Injectable()
 export class UserRepository {
@@ -11,18 +14,10 @@ export class UserRepository {
     return await this.prismaService.user.findMany();
   }
 
-  async findById(id: number) {
+  async findByIdOrEmail(unique: { email: string } | { id: number }) {
     return await this.prismaService.user.findUnique({
       where: {
-        id,
-      },
-    });
-  }
-
-  async findByEmail(email: string) {
-    return await this.prismaService.user.findUnique({
-      where: {
-        email,
+        ...unique,
       },
     });
   }
@@ -36,28 +31,28 @@ export class UserRepository {
   }
 
   async create(
-    data: Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>,
-    include?: Prisma.UserInclude<DefaultArgs>,
+    data: CreateUserDtoType | (CreateUserDtoType & { avatar: string }),
   ) {
     return await this.prismaService.user.create({
       data: {
         ...data,
       },
-      include: {
-        ...include,
-      },
     });
   }
 
-  async updateById({
-    id,
+  async updateByIdOrEmail({
+    unique,
     data,
   }: {
-    id: number;
-    data: Prisma.XOR<Prisma.UserUpdateInput, Prisma.UserUncheckedUpdateInput>;
+    unique: { id: number } | { email: string };
+    data:
+      | UpdateUserDtoType
+      | { totpSecret: string | null }
+      | { password: string }
+      | UpdateProfileDtoType;
   }) {
     return await this.prismaService.user.update({
-      where: { id },
+      where: { ...unique },
       data: {
         ...data,
       },

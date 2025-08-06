@@ -1,4 +1,3 @@
-import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
@@ -6,12 +5,7 @@ import { PrismaService } from 'src/modules/share/services/prisma.service';
 export class DeviceRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async create(
-    data: Prisma.XOR<
-      Prisma.DeviceCreateInput,
-      Prisma.DeviceUncheckedCreateInput
-    >,
-  ) {
+  async create(data: { ip: string; userAgent: string; userId: number }) {
     return await this.prismaService.device.create({
       data: {
         ...data,
@@ -24,10 +18,7 @@ export class DeviceRepository {
     data,
   }: {
     id: number;
-    data: Prisma.XOR<
-      Prisma.DeviceUpdateInput,
-      Prisma.DeviceUncheckedUpdateInput
-    >;
+    data: { ip?: string; userAgent?: string; isActive?: boolean };
   }) {
     return await this.prismaService.device.update({
       where: { id },

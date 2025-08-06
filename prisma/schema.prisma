@@ -1,3 +1,4 @@
+// Single source of truth
 generator client {
   provider = "prisma-client-js"
   // output   = "../generated/prisma"
@@ -7,6 +8,359 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  id          Int        @id @default(autoincrement())
+  email       String     @unique
+  password    String
+  name        String
+  phoneNumber String?    @unique
+  avatar      String?
+  totpSecret  String?
+  status      UserStatus @default(ACTIVE)
+  roleId      Int
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  role             Role              @relation(fields: [roleId], references: [id])
+  refreshTokens    RefreshToken[]
+  cartItems        CartItem[]
+  orders           Order[]
+  reviews          Review[]
+  fromUser         Message[]         @relation("FromUser")
+  toUser           Message[]         @relation("ToUser")
+  userTranslations UserTranslation[]
+  devices          Device[]
+}
+
+model Message {
+  id         Int       @id @default(autoincrement())
+  fromUserId Int
+  toUserId   Int
+  content    String
+  readAt     DateTime?
+
+  fromUser User @relation("FromUser", fields: [fromUserId], references: [id])
+  toUser   User @relation("ToUser", fields: [toUserId], references: [id])
+}
+
+model RefreshToken {
+  token     String   @unique
+  userId    Int
+  deviceId  Int
+  createdAt DateTime @default(now())
+  expireAt  DateTime
+
+  user   User   @relation(fields: [userId], references: [id])
+  device Device @relation(fields: [deviceId], references: [id])
+}
+
+model Device {
+  id        Int     @id @default(autoincrement())
+  ip        String
+  userAgent String
+  isActive  Boolean @default(true) // trạng thái đang login hay logout
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId        Int
+  user          User           @relation(fields: [userId], references: [id])
+  refreshTokens RefreshToken[]
+}
+
+model Role {
+  id        Int       @id @default(autoincrement())
+  name      RoleEnum  @unique
+  desc      String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  users           User[]
+  permissionRoles PermissionRole[]
+}
+
+model Permission {
+  id        Int        @id @default(autoincrement())
+  name      String
+  desc      String?
+  path      String
+  method    HttpMethod
+  moduel    String
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  deletedAt DateTime?
+
+  permissionRoles PermissionRole[]
+
+  @@unique([path, method])
+}
+
+model PermissionRole {
+  roleId       Int
+  permissionId Int
+
+  role       Role       @relation(fields: [roleId], references: [id])
+  permission Permission @relation(fields: [permissionId], references: [id])
+
+  @@id([roleId, permissionId])
+}
+
+model VerificationCode {
+  id        Int              @id @default(autoincrement())
+  email     String           @unique
+  code      String
+  type      VerificationType
+  createdAt DateTime         @default(now())
+  expireAt  DateTime
+
+  @@index([email, code, type])
+}
+
+model PaymentTransaction {
+  id                 Int      @id @default(autoincrement())
+  gateway            String
+  accountNumber      String
+  subAccount         String?
+  amountIn           Int      @default(0)
+  amountOut          Int      @default(0)
+  accumulated        Int      @default(0)
+  code               String?
+  transactionContent String?
+  referenceNumber    String?
+  body               String?
+  transactionDate    DateTime @default(now())
+  createdAt          DateTime @default(now())
+}
+
+model Product {
+  id           Int       @id @default(autoincrement())
+  basePrice    Float
+  virtualPrice Float
+  brandId      Int
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  deletedAt    DateTime?
+
+  brand Brand @relation(fields: [brandId], references: [id])
+
+  productTranslations ProductTranslation[]
+  variants            Variant[]
+  skus                Sku[]
+  categories          ProductCategory[]
+  reviews             Review[]
+}
+
+model ProductCategory {
+  productId  Int
+  categoryId Int
+
+  product  Product  @relation(fields: [productId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+
+  @@id([productId, categoryId])
+}
+
+model ProductSkuSnapshot {
+  id          Int       @id @default(autoincrement())
+  productName String
+  price       Float
+  images      String[]
+  skuValue    String
+  skuId       Int
+  orderId     Int
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  sku   Sku   @relation(fields: [skuId], references: [id])
+  order Order @relation(fields: [orderId], references: [id])
+}
+
+model Order {
+  id        Int         @id @default(autoincrement())
+  userId    Int
+  status    OrderStatus
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  deletedAt DateTime?
+
+  user               User                 @relation(fields: [userId], references: [id])
+  productSkuSnapshot ProductSkuSnapshot[]
+}
+
+model CartItem {
+  id        Int       @id @default(autoincrement())
+  quantity  Int
+  skuId     Int
+  userId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  sku  Sku  @relation(fields: [skuId], references: [id])
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Category {
+  id             Int       @id @default(autoincrement())
+  parentCategory Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  deletedAt      DateTime?
+
+  parent               Category?             @relation("CategoryParent", fields: [parentCategory], references: [id])
+  children             Category[]            @relation("CategoryParent")
+  categoryTranslations CategoryTranslation[]
+  productCategories    ProductCategory[]
+}
+
+model Brand {
+  id        Int       @id @default(autoincrement())
+  logo      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  brandTranslations BrandTranslation[]
+  products          Product[]
+}
+
+model Review {
+  id        Int       @id @default(autoincrement())
+  content   String
+  rating    Int
+  productId Int
+  userId    Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  product Product @relation(fields: [productId], references: [id])
+  user    User    @relation(fields: [userId], references: [id])
+}
+
+model Variant {
+  id        Int       @id @default(autoincrement())
+  name      String
+  productId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  product       Product         @relation(fields: [productId], references: [id])
+  variantOption VariantOption[]
+}
+
+model VariantOption {
+  id        Int       @id @default(autoincrement())
+  value     String
+  variantId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  variant          Variant            @relation(fields: [variantId], references: [id])
+  skuVariantOption SkuVariantOption[]
+}
+
+model Sku {
+  id        Int       @id @default(autoincrement())
+  value     String
+  price     Float
+  stock     Int
+  images    String[]
+  productId Int
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  product             Product              @relation(fields: [productId], references: [id])
+  skuVariantOptions   SkuVariantOption[]
+  productSkuSnapshots ProductSkuSnapshot[]
+  cartItems           CartItem[]
+}
+
+model SkuVariantOption {
+  skuId           Int
+  variantOptionId Int
+
+  sku           Sku           @relation(fields: [skuId], references: [id])
+  variantOption VariantOption @relation(fields: [variantOptionId], references: [id])
+
+  @@id([skuId, variantOptionId])
+}
+
+model Language {
+  id        String   @id // exp: en,ja,vi,...
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userTranslations     UserTranslation[]
+  productTranslations  ProductTranslation[]
+  categoryTranslations CategoryTranslation[]
+  brandTranslations    BrandTranslation[]
+}
+
+model UserTranslation {
+  id         Int       @id @default(autoincrement())
+  address    String?
+  desc       String?
+  userId     Int
+  languageId String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  user     User     @relation(fields: [userId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+model ProductTranslation {
+  id         Int       @id @default(autoincrement())
+  name       String
+  desc       String?
+  productId  Int
+  languageId String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  product  Product  @relation(fields: [productId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+model CategoryTranslation {
+  id         Int       @id @default(autoincrement())
+  name       String
+  desc       String?
+  categoryId Int
+  languageId String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  category Category @relation(fields: [categoryId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+model BrandTranslation {
+  id         Int       @id @default(autoincrement())
+  name       String
+  desc       String?
+  brandId    Int
+  languageId String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+// ENUM
 
 enum OrderStatus {
   PENDING_CONFIRMATION
@@ -20,6 +374,9 @@ enum OrderStatus {
 enum VerificationType {
   REGISTER
   FORGOT_PASSWORD
+  LOGIN
+  DISABLE_2FA
+  RESET_2FA
 }
 
 enum UserStatus {

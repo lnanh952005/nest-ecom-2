@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { VerificationType } from '@prisma/client';
 import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
-import { InvalidOtpException, OtpExpiredException } from '../auth.error';
+import { InvalidOTPException, OTPExpiredException } from '../auth.error';
 
 @Injectable()
 export class VerificationCodeService {
@@ -27,10 +27,10 @@ export class VerificationCodeService {
         type,
       });
     if (!verificationCode) {
-      throw InvalidOtpException;
+      throw InvalidOTPException;
     }
     if (verificationCode.expireAt < new Date()) {
-      throw OtpExpiredException;
+      throw OTPExpiredException;
     }
     return verificationCode;
   }

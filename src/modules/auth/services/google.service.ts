@@ -1,13 +1,14 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { Role } from '@prisma/client';
 import { Auth, google } from 'googleapis';
-import { DeviceRepository } from 'src/modules/share/repositories/device.repository';
-import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+
+import { EnvService } from 'src/modules/share/services/env.service';
+import { TokenService } from 'src/modules/share/services/token.service';
 import { RoleRepository } from 'src/modules/share/repositories/role.repository';
 import { UserRepository } from 'src/modules/share/repositories/user.repository';
-import { EnvService } from 'src/modules/share/services/env.service';
+import { DeviceRepository } from 'src/modules/share/repositories/device.repository';
 import { PasswordEncoderService } from 'src/modules/share/services/passwordEncoder.service';
-import { TokenService } from 'src/modules/share/services/token.service';
+import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
 
 @Injectable()
 export class GoogleService {
@@ -29,10 +30,6 @@ export class GoogleService {
   }
 
   getGoogleLoginLink({ ip, userAgent }: { ip: string; userAgent: string }) {
-    // const scope = [
-    //   'https://www.googleapis.com/auth/userinfo.email',
-    //   'https://www.googleapis.com/auth/userinfo.profile',
-    // ];
     const scope = ['email', 'profile'];
     const state = Buffer.from(JSON.stringify({ ip, userAgent })).toString(
       'base64',
@@ -46,7 +43,7 @@ export class GoogleService {
       }),
     };
   }
-  async googleOAuthRedirect({ code, state }: { code: string; state: string }) {
+  async googleOAuthCallback({ code, state }: { code: string; state: string }) {
     try {
       const { ip, userAgent } = JSON.parse(
         Buffer.from(state, 'base64').toString(),
@@ -67,7 +64,9 @@ export class GoogleService {
         'CLIENT',
       )) as Role;
 
-      let user = await this.userRepository.findByEmail(data.email);
+      let user = await this.userRepository.findByIdOrEmail({
+        email: data.email,
+      });
 
       if (!user) {
         user = await this.userRepository.create({
@@ -75,7 +74,7 @@ export class GoogleService {
           name: data.name || 'unknown',
           password: this.passwordEncoderSerivice.randomPassword(),
           roleId: clientRole.id,
-          avatar: data.picture,
+          avatar: data.picture || 'unknown',
         });
       }
 

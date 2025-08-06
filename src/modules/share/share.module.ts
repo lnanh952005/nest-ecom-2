@@ -10,6 +10,8 @@ import { PasswordEncoderService } from './services/passwordEncoder.service';
 import { VerificationCodeRepository } from './repositories/verificationCode.repository';
 import { RefreshTokenRepository } from './repositories/refreshToken.repository';
 import { DeviceRepository } from './repositories/device.repository';
+import { LanguageRepository } from './repositories/language.repository';
+import { PermissionRepository } from 'src/modules/share/repositories/permission.repository';
 
 const Service = [
   PrismaService,
@@ -19,10 +21,12 @@ const Service = [
 ];
 const Repository = [
   UserRepository,
+  PermissionRepository,
   RoleRepository,
   VerificationCodeRepository,
   RefreshTokenRepository,
-  DeviceRepository
+  DeviceRepository,
+  LanguageRepository
 ];
 
 @Global()

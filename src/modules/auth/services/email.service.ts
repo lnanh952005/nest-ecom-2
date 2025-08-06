@@ -4,16 +4,17 @@ import { Resend } from 'resend';
 import ms, { StringValue } from 'ms';
 import { Injectable } from '@nestjs/common';
 
-import { UserRepository } from 'src/modules/share/repositories/user.repository';
-import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
 import { EnvService } from 'src/modules/share/services/env.service';
 import { createOtpCode } from 'src/modules/share/utils/createOtpCode.util';
-import { SendOtpDto } from '../auth.dto';
+import { UserRepository } from 'src/modules/share/repositories/user.repository';
+import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
+
 import {
   EmailExistedException,
   EmailNotFoundException,
-  InvalidOtpException,
+  InvalidOTPException,
 } from '../auth.error';
+import { SendOtpDtoType } from '../auth.type';
 
 @Injectable()
 export class EmailService {
@@ -26,8 +27,8 @@ export class EmailService {
     this.resend = new Resend(this.envService.RESEND_API_KEY);
   }
 
-  async sendOtpCode({ email, type }: SendOtpDto) {
-    const isEmail = await this.userRepository.findByEmail(email);
+  async sendOtpCode({ email, type }: SendOtpDtoType) {
+    const isEmail = await this.userRepository.findByIdOrEmail({ email });
     if (isEmail && type == 'REGISTER') {
       throw EmailExistedException;
     }
@@ -41,6 +42,7 @@ export class EmailService {
     await this.verificationCodeRepository.upsertVerificationCode({
       where: {
         email,
+        type,
       },
       create: {
         code,
@@ -57,7 +59,14 @@ export class EmailService {
       path.resolve() + '\\src\\templates\\sendOtp.html',
       { encoding: 'utf-8' },
     );
-    const subject = type == 'FORGOT_PASSWORD' ? 'reset password' : 'register';
+    const subject =
+      type == 'FORGOT_PASSWORD'
+        ? 'reset password'
+        : type == 'REGISTER'
+          ? 'register'
+          : type == 'RESET_2FA'
+            ? 'reset 2FA'
+            : '';
     const { error } = await this.resend.emails.send({
       from: 'ecommerce <no-reply@nhatanh.top>',
       to: [email],
@@ -65,7 +74,7 @@ export class EmailService {
       html: html.replace('{{OTP_CODE}}', code).replace('{{TYPE}}', subject),
     });
     if (error) {
-      throw InvalidOtpException;
+      throw InvalidOTPException;
     }
   }
 }

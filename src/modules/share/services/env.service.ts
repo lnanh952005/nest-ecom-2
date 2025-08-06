@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class EnvService {
+  APP_NAME: string;
+
   ACCESS_TOKEN_KEY: string;
   REFRESH_TOKEN_KEY: string;
 
@@ -20,6 +22,7 @@ export class EnvService {
   GG_CLIENT_REDIRECT_URI: string;
 
   constructor() {
+    this.APP_NAME = process.env.APP_NAME as string;
     this.ACCESS_TOKEN_KEY = process.env.ACCESS_TOKEN_KEY as string;
     this.REFRESH_TOKEN_KEY = process.env.REFRESH_TOKEN_KEY as string;
     this.ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE as string;

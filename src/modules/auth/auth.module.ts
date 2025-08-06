@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
-import { AuthService } from './service/auth.service';
+import { AuthService } from './services/auth.service';
 import { AuthController } from './auth.controller';
-import { EmailService } from './service/email.service';
-import { GoogleService } from './service/google.service';
-import { VerificationCodeService } from './service/verificationCode.service';
+import { EmailService } from './services/email.service';
+import { GoogleService } from './services/google.service';
+import { VerificationCodeService } from './services/verificationCode.service';
+import { TwoFactorAuthService } from './services/twoFactorAuth.service';
 
 @Module({
   controllers: [AuthController],
@@ -11,6 +12,7 @@ import { VerificationCodeService } from './service/verificationCode.service';
     AuthService,
     EmailService,
     GoogleService,
+    TwoFactorAuthService,
     VerificationCodeService,
   ],
 })

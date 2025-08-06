@@ -3,18 +3,15 @@ import { Injectable } from '@nestjs/common';
 import { JsonWebTokenError, TokenExpiredError } from '@nestjs/jwt';
 
 import {
-  ForgotPasswordDto,
-  LoginDto,
-  RefreshTokenDto,
-  RegisterDto,
-} from '../auth.dto';
-import {
   EmailNotFoundException,
   InvalidRefreshTokenException,
+  InvalidTOTPException,
   RefreshTokenExpiredException,
   RefreshTokenNotFoundException,
+  TOTPRequiredException,
   UserNotFoundException,
 } from '../auth.error';
+import { TwoFactorAuthService } from './twoFactorAuth.service';
 import { TokenService } from '../../share/services/token.service';
 import { VerificationCodeService } from './verificationCode.service';
 import { UserRepository } from '../../share/repositories/user.repository';
@@ -22,11 +19,18 @@ import { RoleRepository } from '../../share/repositories/role.repository';
 import { DeviceRepository } from 'src/modules/share/repositories/device.repository';
 import { PasswordEncoderService } from '../../share/services/passwordEncoder.service';
 import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
+import {
+  ForgotPasswordDtoType,
+  LoginDtoType,
+  RefreshTokenDtoType,
+  RegisterDtoType,
+} from '../auth.type';
 
 @Injectable()
 export class AuthService {
   constructor(
     private tokenService: TokenService,
+    private twoFactorAuthService: TwoFactorAuthService,
     private userRepository: UserRepository,
     private roleRepository: RoleRepository,
     private deviceRepository: DeviceRepository,
@@ -36,10 +40,10 @@ export class AuthService {
   ) {}
 
   async getProfile(id: number) {
-    return await this.userRepository.findById(id);
+    return await this.userRepository.findByIdOrEmail({ id });
   }
 
-  async register({ email, password, name, code }: RegisterDto) {
+  async register({ email, password, name, code }: RegisterDtoType) {
     const verificationCode = await this.verificationCodeService.validate({
       code,
       email,
@@ -65,11 +69,13 @@ export class AuthService {
     ip,
     userAgent,
   }: {
-    body: LoginDto;
+    body: LoginDtoType;
     userAgent: string;
     ip: string;
   }) {
-    const user = await this.userRepository.findByEmail(body.email);
+    const user = await this.userRepository.findByIdOrEmail({
+      email: body.email,
+    });
     if (!user) {
       throw EmailNotFoundException;
     }
@@ -79,6 +85,20 @@ export class AuthService {
     );
     if (!isMatching) {
       throw EmailNotFoundException;
+    }
+
+    if (user.totpSecret) {
+      if (!body.totpCode) {
+        throw TOTPRequiredException;
+      }
+      const idValid = this.twoFactorAuthService.verify({
+        email: user.email,
+        secret: user.totpSecret,
+        totpCode: body.totpCode,
+      });
+      if (!idValid) {
+        throw InvalidTOTPException;
+      }
     }
 
     const device = await this.deviceRepository.create({
@@ -106,13 +126,14 @@ export class AuthService {
     token,
     ip,
     userAgent,
-  }: RefreshTokenDto & {
+  }: {
+    token: string;
     ip: string;
     userAgent: string;
   }) {
     try {
       const { userId } = await this.tokenService.verifyRefreshToken(token);
-      const user = await this.userRepository.findById(userId);
+      const user = await this.userRepository.findByIdOrEmail({ id: userId });
       if (!user) {
         throw UserNotFoundException;
       }
@@ -165,7 +186,7 @@ export class AuthService {
     }
   }
 
-  async logout({ token }: RefreshTokenDto) {
+  async logout({ token }: RefreshTokenDtoType) {
     try {
       await this.tokenService.verifyRefreshToken(token);
       const { deviceId } =
@@ -187,26 +208,24 @@ export class AuthService {
     }
   }
 
-  async forgotPassword({ code, email, newPassword }: ForgotPasswordDto) {
+  async forgotPassword({ code, email, newPassword }: ForgotPasswordDtoType) {
     const verificationCode = await this.verificationCodeService.validate({
       code,
       email,
       type: 'FORGOT_PASSWORD',
     });
-    const user = await this.userRepository.findByEmail(email);
-    if (!user) {
+    const hashedPassword = await this.passwordEncoderService.hash(newPassword);
+    try {
+      const [updatedUser] = await Promise.all([
+        this.userRepository.updateByIdOrEmail({
+          unique: { email },
+          data: { password: hashedPassword },
+        }),
+        this.verificationCodeService.deleteById(verificationCode.id),
+      ]);
+      return updatedUser;
+    } catch (error) {
       throw EmailNotFoundException;
     }
-    const hashedPassword = await this.passwordEncoderService.hash(newPassword);
-    const [updatedUser] = await Promise.all([
-      this.userRepository.updateById({
-        id: user.id,
-        data: {
-          password: hashedPassword,
-        },
-      }),
-      this.verificationCodeService.deleteById(verificationCode.id),
-    ]);
-    return updatedUser;
   }
 }
