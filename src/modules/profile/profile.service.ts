@@ -19,7 +19,7 @@ export class ProfileService {
   ) {}
 
   async getProfile(id: number) {
-    return await this.userRepository.findByIdOrEmail({ id });
+    return await this.userRepository.findByIdOrEmail({ unique: { id } });
   }
 
   async changePassword({
@@ -29,7 +29,7 @@ export class ProfileService {
     id: number;
     data: ChangePasswordDtoType;
   }) {
-    const user = await this.userRepository.findByIdOrEmail({ id });
+    const user = await this.userRepository.findByIdOrEmail({ unique: { id } });
     if (!user) {
       throw EmailNotFoundException;
     }

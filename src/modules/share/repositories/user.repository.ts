@@ -5,33 +5,65 @@ import {
 } from 'src/modules/user/user.type';
 import { PrismaService } from '../services/prisma.service';
 import { UpdateProfileDtoType } from 'src/modules/profile/profile.type';
+import { RegisterDtoType } from 'src/modules/auth/auth.type';
 
 @Injectable()
 export class UserRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async findAll() {
-    return await this.prismaService.user.findMany();
+  async findAll({ limit, page }: { page: number; limit: number }) {
+    const [items, totalItems] = await Promise.all([
+      this.prismaService.user.findMany({
+        where: { deletedAt: null },
+        include: { role: true },
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      this.prismaService.user.count({
+        where: { deletedAt: null },
+      }),
+    ]);
+    return {
+      items,
+      totalItems,
+    };
   }
 
-  async findByIdOrEmail(unique: { email: string } | { id: number }) {
-    return await this.prismaService.user.findUnique({
+  async findByIdOrEmail({
+    unique,
+    includeRole = false,
+  }: {
+    unique: { email: string } | { id: number };
+    includeRole?: boolean;
+  }) {
+    return await this.prismaService.user.findUniqueOrThrow({
       where: {
         ...unique,
       },
+      include: includeRole ? { role: true } : {},
     });
   }
 
   async isPhoneNumberExisting(phoneNumber: string) {
-    return await this.prismaService.user.findUnique({
+    await this.prismaService.user.findUniqueOrThrow({
       where: {
         phoneNumber,
       },
     });
   }
 
+  async isEmailExisting(email: string) {
+    await this.prismaService.user.findUniqueOrThrow({
+      where: {
+        email,
+      },
+    });
+  }
+
   async create(
-    data: CreateUserDtoType | (CreateUserDtoType & { avatar: string }),
+    data:
+      | (Omit<RegisterDtoType, 'code'> & { roleId: number })
+      | CreateUserDtoType,
   ) {
     return await this.prismaService.user.create({
       data: {
@@ -56,6 +88,13 @@ export class UserRepository {
       data: {
         ...data,
       },
+    });
+  }
+
+  async deleteById(id: number) {
+    await this.prismaService.user.update({
+      where: { id },
+      data: { deletedAt: new Date() },
     });
   }
 }

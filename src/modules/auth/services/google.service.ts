@@ -65,7 +65,7 @@ export class GoogleService {
       )) as Role;
 
       let user = await this.userRepository.findByIdOrEmail({
-        email: data.email,
+        unique: { email: data.email },
       });
 
       if (!user) {

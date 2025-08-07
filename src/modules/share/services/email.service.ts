@@ -13,8 +13,8 @@ import {
   EmailExistedException,
   EmailNotFoundException,
   InvalidOTPException,
-} from '../auth.error';
-import { SendOtpDtoType } from '../auth.type';
+} from '../../auth/auth.error';
+import { SendOtpDtoType } from '../../auth/auth.type';
 
 @Injectable()
 export class EmailService {
@@ -28,7 +28,9 @@ export class EmailService {
   }
 
   async sendOtpCode({ email, type }: SendOtpDtoType) {
-    const isEmail = await this.userRepository.findByIdOrEmail({ email });
+    const isEmail = await this.userRepository.findByIdOrEmail({
+      unique: { email },
+    });
     if (isEmail && type == 'REGISTER') {
       throw EmailExistedException;
     }

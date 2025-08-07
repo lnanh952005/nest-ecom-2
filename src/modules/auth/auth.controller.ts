@@ -31,7 +31,7 @@ import {
 } from './dtos/auth.request';
 import { User } from 'src/decorators/user.decorator';
 import { AuthService } from './services/auth.service';
-import { EmailService } from './services/email.service';
+import { EmailService } from '../share/services/email.service';
 import { Public } from 'src/decorators/public.decorator';
 import { GoogleService } from './services/google.service';
 import { EnvService } from '../share/services/env.service';

@@ -12,12 +12,14 @@ import { RefreshTokenRepository } from './repositories/refreshToken.repository';
 import { DeviceRepository } from './repositories/device.repository';
 import { LanguageRepository } from './repositories/language.repository';
 import { PermissionRepository } from 'src/modules/share/repositories/permission.repository';
+import { EmailService } from 'src/modules/share/services/email.service';
 
 const Service = [
   PrismaService,
   PasswordEncoderService,
   TokenService,
   EnvService,
+  EmailService
 ];
 const Repository = [
   UserRepository,

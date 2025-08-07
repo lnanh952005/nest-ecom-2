@@ -40,7 +40,7 @@ export class AuthService {
   ) {}
 
   async getProfile(id: number) {
-    return await this.userRepository.findByIdOrEmail({ id });
+    return await this.userRepository.findByIdOrEmail({ unique: { id } });
   }
 
   async register({ email, password, name, code }: RegisterDtoType) {
@@ -74,7 +74,7 @@ export class AuthService {
     ip: string;
   }) {
     const user = await this.userRepository.findByIdOrEmail({
-      email: body.email,
+      unique: { email: body.email },
     });
     if (!user) {
       throw EmailNotFoundException;
@@ -133,7 +133,9 @@ export class AuthService {
   }) {
     try {
       const { userId } = await this.tokenService.verifyRefreshToken(token);
-      const user = await this.userRepository.findByIdOrEmail({ id: userId });
+      const user = await this.userRepository.findByIdOrEmail({
+        unique: { id: userId },
+      });
       if (!user) {
         throw UserNotFoundException;
       }

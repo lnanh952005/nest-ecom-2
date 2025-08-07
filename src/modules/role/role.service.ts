@@ -28,7 +28,11 @@ export class RoleService {
   }
 
   async findById(id: number) {
-    const result = await this.roleRepository.findById(id);
+    const result = await this.roleRepository
+      .findById({ id, includePermission: true })
+      .catch(() => {
+        throw RoleNotFoundException;
+      });
     const permissions = result?.permissionRoles
       .map((e) => e.permission)
       .map((e) => ({

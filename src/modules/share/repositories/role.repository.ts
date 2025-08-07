@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { RoleEnum } from '@prisma/client';
+import { Prisma, RoleEnum, User } from '@prisma/client';
 
 import {
   CreateRoleDtoType,
@@ -24,18 +24,33 @@ export class RoleRepository {
       },
     });
   }
-  async findById(id: number) {
-    return await this.prismaService.role.findUnique({
+
+  async findById({
+    id,
+    includePermission = false,
+  }: {
+    id: number;
+    includePermission?: boolean;
+  }): Promise<any> {
+    if (includePermission) {
+      return await this.prismaService.role.findUniqueOrThrow({
+        where: {
+          id,
+          deletedAt: null,
+        },
+        include: {
+          permissionRoles: {
+            include: {
+              permission: true,
+            },
+          },
+        },
+      });
+    }
+    return await this.prismaService.role.findUniqueOrThrow({
       where: {
         id,
         deletedAt: null,
-      },
-      include: {
-        permissionRoles: {
-          include: {
-            permission: true,
-          },
-        },
       },
     });
   }

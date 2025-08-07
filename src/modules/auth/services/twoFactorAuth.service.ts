@@ -34,7 +34,7 @@ export class TwoFactorAuthService {
   }
 
   async enable2FA(id: number) {
-    const user = await this.userRepository.findByIdOrEmail({ id });
+    const user = await this.userRepository.findByIdOrEmail({ unique: { id } });
     if (!user) {
       throw UserNotFoundException;
     }
@@ -55,7 +55,7 @@ export class TwoFactorAuthService {
   }
 
   async disable2FA({ id, data }: { id: number; data: Disable2FaDtoType }) {
-    const user = await this.userRepository.findByIdOrEmail({ id });
+    const user = await this.userRepository.findByIdOrEmail({ unique: { id } });
     if (!user) {
       throw UserNotFoundException;
     }
@@ -79,7 +79,9 @@ export class TwoFactorAuthService {
   }
 
   async reset2Fa({ code, email }: Reset2FaDtoType) {
-    const user = await this.userRepository.findByIdOrEmail({ email });
+    const user = await this.userRepository.findByIdOrEmail({
+      unique: { email },
+    });
     if (!user) {
       throw EmailNotFoundException;
     }
