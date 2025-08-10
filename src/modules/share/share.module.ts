@@ -13,13 +13,17 @@ import { DeviceRepository } from './repositories/device.repository';
 import { LanguageRepository } from './repositories/language.repository';
 import { PermissionRepository } from 'src/modules/share/repositories/permission.repository';
 import { EmailService } from 'src/modules/share/services/email.service';
+import { BrandRepository } from 'src/modules/share/repositories/brand.repository';
+import { S3Service } from 'src/modules/share/services/s3.service';
+import { BrandTranslationRepository } from 'src/modules/share/repositories/brandTranslation.repository';
 
 const Service = [
   PrismaService,
   PasswordEncoderService,
   TokenService,
   EnvService,
-  EmailService
+  EmailService,
+  S3Service,
 ];
 const Repository = [
   UserRepository,
@@ -28,7 +32,9 @@ const Repository = [
   VerificationCodeRepository,
   RefreshTokenRepository,
   DeviceRepository,
-  LanguageRepository
+  LanguageRepository,
+  BrandRepository,
+  BrandTranslationRepository
 ];
 
 @Global()

@@ -219,6 +219,7 @@ model Category {
 
 model Brand {
   id        Int       @id @default(autoincrement())
+  name      String    @unique
   logo      String
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
@@ -349,8 +350,8 @@ model CategoryTranslation {
 
 model BrandTranslation {
   id         Int       @id @default(autoincrement())
-  name       String
-  desc       String?
+  // name       String
+  desc       String
   brandId    Int
   languageId String
   createdAt  DateTime  @default(now())
@@ -359,6 +360,8 @@ model BrandTranslation {
 
   brand    Brand    @relation(fields: [brandId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([brandId, languageId])
 }
 
 // ENUM

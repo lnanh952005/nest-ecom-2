@@ -1,4 +1,6 @@
+import path from 'path';
 import { Module } from '@nestjs/common';
+import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 import { AppController } from './app.controller';
@@ -16,6 +18,8 @@ import { ZodErrorFilter } from './filters/zodError.filter';
 import { PermissionModule } from 'src/modules/permission/permission.module';
 import { RoleModule } from 'src/modules/role/role.module';
 import { ProfileModule } from 'src/modules/profile/profile.module';
+import { MediaModule } from 'src/modules/media/media.module';
+import { BrandModule } from 'src/modules/brand/brand.module';
 
 @Module({
   imports: [
@@ -25,7 +29,21 @@ import { ProfileModule } from 'src/modules/profile/profile.module';
     LanguageModule,
     RoleModule,
     ProfileModule,
+    MediaModule,
+    BrandModule,
     PermissionModule,
+    I18nModule.forRoot({
+      fallbackLanguage: 'all',
+      loaderOptions: {
+        path: path.resolve('src/i18n'),
+        watch: true,
+      },
+      resolvers: [
+        { use: QueryResolver, options: ['lang'] },
+        AcceptLanguageResolver,
+      ],
+      typesOutputPath: path.resolve('src/generated/i18n.generated.ts'),
+    }),
   ],
   controllers: [AppController],
   providers: [

@@ -5,7 +5,7 @@ import ms, { StringValue } from 'ms';
 import { Injectable } from '@nestjs/common';
 
 import { EnvService } from 'src/modules/share/services/env.service';
-import { createOtpCode } from 'src/modules/share/utils/createOtpCode.util';
+import { createOtpCode } from 'src/modules/share/utils/helper.util';
 import { UserRepository } from 'src/modules/share/repositories/user.repository';
 import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
 
