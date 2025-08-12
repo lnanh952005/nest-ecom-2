@@ -20,6 +20,7 @@ import { RoleModule } from 'src/modules/role/role.module';
 import { ProfileModule } from 'src/modules/profile/profile.module';
 import { MediaModule } from 'src/modules/media/media.module';
 import { BrandModule } from 'src/modules/brand/brand.module';
+import { CategoryModule } from 'src/modules/category/category.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { BrandModule } from 'src/modules/brand/brand.module';
     ProfileModule,
     MediaModule,
     BrandModule,
+    CategoryModule,
     PermissionModule,
     I18nModule.forRoot({
       fallbackLanguage: 'all',

@@ -55,7 +55,7 @@ const main = async () => {
         method,
         path: e.path,
         name: e.path + ' ' + method,
-        moduel: String(e.path).split("/")[1]
+        moduel: String(e.path).split('/')[1],
       },
       skipDuplicates: true,
     });
@@ -70,6 +70,57 @@ const main = async () => {
       skipDuplicates: true,
     });
   }
+
+  const [nike, adidas] = await prismaService.brand.createManyAndReturn({
+    data: [
+      {
+        logo: 'https://...',
+        name: 'Nike',
+      },
+      {
+        logo: 'https://...',
+        name: 'Adidas',
+      },
+    ],
+    skipDuplicates: true,
+  });
+  const [en, vi] = await prismaService.language.createManyAndReturn({
+    data: [
+      {
+        id: 'en',
+        name: 'English',
+      },
+      {
+        id: 'vi',
+        name: 'Tiếng Việt',
+      },
+    ],
+    skipDuplicates: true,
+  });
+  await prismaService.brandTranslation.createMany({
+    data: [
+      {
+        brandId: nike.id,
+        languageId: en.id,
+        desc: 'popular brand',
+      },
+      {
+        brandId: nike.id,
+        languageId: vi.id,
+        desc: 'thương hiệu nổi tiếng',
+      },
+      {
+        brandId: adidas.id,
+        languageId: vi.id,
+        desc: 'thương hiệu nổi tiếng',
+      },
+      {
+        brandId: adidas.id,
+        languageId: en.id,
+        desc: 'popular brand',
+      },
+    ],
+  });
   process.exit(0);
 };
 

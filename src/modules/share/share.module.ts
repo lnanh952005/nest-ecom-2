@@ -16,6 +16,8 @@ import { EmailService } from 'src/modules/share/services/email.service';
 import { BrandRepository } from 'src/modules/share/repositories/brand.repository';
 import { S3Service } from 'src/modules/share/services/s3.service';
 import { BrandTranslationRepository } from 'src/modules/share/repositories/brandTranslation.repository';
+import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
+import { CategoryTranslationRepository } from 'src/modules/share/repositories/categoryTranslation.repository';
 
 const Service = [
   PrismaService,
@@ -34,7 +36,9 @@ const Repository = [
   DeviceRepository,
   LanguageRepository,
   BrandRepository,
-  BrandTranslationRepository
+  BrandTranslationRepository,
+  CategoryRepository,
+  CategoryTranslationRepository
 ];
 
 @Global()

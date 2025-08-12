@@ -136,20 +136,27 @@ model PaymentTransaction {
 }
 
 model Product {
-  id           Int       @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
+  name         String
   basePrice    Float
   virtualPrice Float
-  brandId      Int
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  deletedAt    DateTime?
+  images       String[]
 
-  brand Brand @relation(fields: [brandId], references: [id])
+  brandId    Int
+  categoryId Int
+
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  brand    Brand    @relation(fields: [brandId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
 
   productTranslations ProductTranslation[]
   variants            Variant[]
   skus                Sku[]
-  categories          ProductCategory[]
+  productCategories   ProductCategory[]
   reviews             Review[]
 }
 
@@ -205,14 +212,17 @@ model CartItem {
 }
 
 model Category {
-  id             Int       @id @default(autoincrement())
-  parentCategory Int?
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
-  deletedAt      DateTime?
+  id               Int       @id @default(autoincrement())
+  name             String    @unique
+  logo             String
+  parentCategoryId Int?
+  products         Product[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  deletedAt        DateTime?
 
-  parent               Category?             @relation("CategoryParent", fields: [parentCategory], references: [id])
-  children             Category[]            @relation("CategoryParent")
+  parentCategory       Category?             @relation("parentCategory", fields: [parentCategoryId], references: [id])
+  childrenCategory     Category[]            @relation("parentCategory")
   categoryTranslations CategoryTranslation[]
   productCategories    ProductCategory[]
 }
@@ -268,12 +278,14 @@ model VariantOption {
 }
 
 model Sku {
-  id        Int       @id @default(autoincrement())
-  value     String
-  price     Float
-  stock     Int
-  images    String[]
+  id     Int    @id @default(autoincrement())
+  value  String
+  price  Float
+  stock  Int
+  images String
+
   productId Int
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
@@ -332,12 +344,14 @@ model ProductTranslation {
 
   product  Product  @relation(fields: [productId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([productId,languageId])
 }
 
 model CategoryTranslation {
   id         Int       @id @default(autoincrement())
   name       String
-  desc       String?
+  desc       String
   categoryId Int
   languageId String
   createdAt  DateTime  @default(now())
@@ -346,6 +360,8 @@ model CategoryTranslation {
 
   category Category @relation(fields: [categoryId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([categoryId, languageId])
 }
 
 model BrandTranslation {
