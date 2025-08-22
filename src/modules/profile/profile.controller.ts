@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseInterceptors } from '@nestjs/common';
 import { User } from 'src/decorators/user.decorator';
 import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 import {
@@ -22,7 +22,7 @@ export class ProfileController {
     return await this.profileService.getProfile(+userId);
   }
 
-  @Post()
+  @Put()
   @UseInterceptors(
     new ValidationInterceptor({
       validate: updateProfileDto,

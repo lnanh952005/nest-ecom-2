@@ -4,14 +4,15 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
   Query,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import { Message } from 'src/decorators/message.decorator';
 import { Public } from 'src/decorators/public.decorator';
+import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 import {
   CreateCategoryDtoType,
   UpdateCategoryDtoType,
@@ -24,7 +25,6 @@ import {
   categoryListResDto,
   categoryResDto,
 } from 'src/modules/category/dtos/category.response';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 import { CategoryService } from 'src/modules/category/services/category.service';
 
 @Controller('categories')
@@ -58,7 +58,7 @@ export class CategoryController {
     return await this.categoryService.create(body);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseInterceptors(new ValidationInterceptor({ validate: updateCategoryDto }))
   async updateById(
     @Param('id') id: string,

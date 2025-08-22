@@ -3,22 +3,22 @@ import {
   Controller,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
   Query,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
+import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 import {
   createPermissionDto,
   updatePermissionDto,
 } from 'src/modules/permission/dtos/permission.request';
+import { permissionListResDto } from 'src/modules/permission/dtos/permission.response';
 import {
   CreatePermissionDtoType,
   UpdatePermissionDtoType,
 } from 'src/modules/permission/permission.type';
 import { PermissionService } from './permission.service';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import { permissionListResDto } from 'src/modules/permission/dtos/permission.response';
 
 @Controller('permissions')
 export class PermissionController {
@@ -46,7 +46,7 @@ export class PermissionController {
     return await this.permissionService.create(body);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseInterceptors(new ValidationInterceptor({ validate: updatePermissionDto }))
   async updateById(
     @Param('id') id: string,

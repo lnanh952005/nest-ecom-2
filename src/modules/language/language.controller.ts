@@ -1,8 +1,22 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post } from '@nestjs/common';
-import { LanguageService } from './language.service';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Post,
+  Put,
+  UseInterceptors,
+} from '@nestjs/common';
 import { Message } from 'src/decorators/message.decorator';
-import { CreateLanguageDtoType, UpdateLanguageDtoType } from './dtos/language.request';
-
+import { LanguageService } from './language.service';
+import {
+  CreateLanguageDtoType,
+  UpdateLanguageDtoType,
+} from '@language/language.type';
+import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
+import { createLanguageDto, updateLanguageDto } from '@language/dtos/language.request';
 
 @Controller('languages')
 export class LanguageController {
@@ -19,18 +33,23 @@ export class LanguageController {
   }
 
   @Post()
+  @UseInterceptors(new ValidationInterceptor({ validate: createLanguageDto }))
   async create(@Body() body: CreateLanguageDtoType) {
     return await this.languageService.create(body);
   }
 
-  @Patch(':id')
-  async updateById(@Param('id') id: string, @Body() body: UpdateLanguageDtoType) {
-    return await this.languageService.updateById({ id, data:body });
+  @Put(':id')
+  @UseInterceptors(new ValidationInterceptor({ validate: updateLanguageDto }))
+  async updateById(
+    @Param('id') id: string,
+    @Body() body: UpdateLanguageDtoType,
+  ) {
+    return await this.languageService.updateById({ id, data: body });
   }
 
   @Delete(':id')
   @HttpCode(200)
-  @Message("delete successfully")
+  @Message('delete successfully')
   async deleteById(@Param('id') id: string) {
     await this.languageService.deleteById(id);
   }

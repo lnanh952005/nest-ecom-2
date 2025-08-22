@@ -1,8 +1,8 @@
-import z from 'zod';
+import { userSchema } from '@share/schemas/user.schema';
 
-export const profileResDto = z.object({
-  email: z.string(),
-  name: z.string(),
-  phoneNumber: z.string().nullable(),
-  avatar: z.string().nullable(),
+export const profileResDto = userSchema.omit({
+  password: true,
+  totpSecret: true,
+  createdAt: true,
+  updatedAt: true,
 });

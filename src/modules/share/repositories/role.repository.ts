@@ -25,32 +25,23 @@ export class RoleRepository {
     });
   }
 
-  async findById({
-    id,
-    includePermission = false,
-  }: {
-    id: number;
-    includePermission?: boolean;
-  }): Promise<any> {
-    if (includePermission) {
-      return await this.prismaService.role.findUniqueOrThrow({
-        where: {
-          id,
-          deletedAt: null,
-        },
-        include: {
-          permissionRoles: {
-            include: {
-              permission: true,
-            },
-          },
-        },
-      });
-    }
+  async findById(id: number) {
     return await this.prismaService.role.findUniqueOrThrow({
       where: {
         id,
         deletedAt: null,
+      },
+    });
+  }
+
+  async getDetailById(id: number) {
+    return await this.prismaService.role.findUniqueOrThrow({
+      where: {
+        id,
+        deletedAt: null,
+      },
+      include: {
+        permissions: true,
       },
     });
   }
@@ -66,25 +57,13 @@ export class RoleRepository {
 
   async updateById({ id, data }: { id: number; data: UpdateRoleDtoType }) {
     return await this.prismaService.$transaction(async (tx) => {
-      if (data.permissionIds) {
-        const [permissions] = await Promise.all([
-          tx.permission.findMany({
-            where: {
-              id: {
-                in: data.permissionIds,
-              },
-            },
-          }),
-          tx.permissionRole.deleteMany({
-            where: {
-              roleId: id,
-            },
-          }),
-        ]);
-        await tx.permissionRole.createMany({
-          data: permissions.map((e) => ({ permissionId: e.id, roleId: id })),
-        });
-      }
+      const permission = await this.prismaService.permission.findMany({
+        where: {
+          id: {
+            in: data.permissionIds,
+          },
+        },
+      });
       return await tx.role.update({
         where: {
           id,
@@ -92,12 +71,8 @@ export class RoleRepository {
         data: {
           name: data.name,
           desc: data.desc,
-        },
-        include: {
-          permissionRoles: {
-            include: {
-              permission: true,
-            },
+          permissions: {
+            set: permission,
           },
         },
       });

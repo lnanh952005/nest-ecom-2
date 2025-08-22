@@ -29,7 +29,6 @@ export class BrandRepository {
     limit: number;
     languageId: string;
   }) {
-    console.log(languageId)
     const [items, totalItems] = await Promise.all([
       this.prismaService.brand.findMany({
         skip: (page - 1) * limit,

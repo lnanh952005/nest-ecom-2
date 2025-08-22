@@ -1,6 +1,7 @@
 // Single source of truth
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearchPostgres"]
   // output   = "../generated/prisma"
 }
 
@@ -61,11 +62,11 @@ model Device {
   ip        String
   userAgent String
   isActive  Boolean @default(true) // trạng thái đang login hay logout
+  userId    Int
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId        Int
   user          User           @relation(fields: [userId], references: [id])
   refreshTokens RefreshToken[]
 }
@@ -78,8 +79,8 @@ model Role {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  users           User[]
-  permissionRoles PermissionRole[]
+  users       User[]
+  permissions Permission[]
 }
 
 model Permission {
@@ -88,32 +89,21 @@ model Permission {
   desc      String?
   path      String
   method    HttpMethod
-  moduel    String
+  module    String
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
-  deletedAt DateTime?
 
-  permissionRoles PermissionRole[]
+  roles Role[]
 
   @@unique([path, method])
 }
 
-model PermissionRole {
-  roleId       Int
-  permissionId Int
-
-  role       Role       @relation(fields: [roleId], references: [id])
-  permission Permission @relation(fields: [permissionId], references: [id])
-
-  @@id([roleId, permissionId])
-}
-
 model VerificationCode {
-  id        Int              @id @default(autoincrement())
-  email     String           @unique
+  id        Int                  @id @default(autoincrement())
+  email     String               @unique
   code      String
-  type      VerificationType
-  createdAt DateTime         @default(now())
+  type      VerificationCodeType
+  createdAt DateTime             @default(now())
   expireAt  DateTime
 
   @@index([email, code, type])
@@ -142,33 +132,34 @@ model Product {
   virtualPrice Float
   images       String[]
 
-  brandId    Int
-  categoryId Int
+  brandId Int
 
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+  createdBy   Int
+  updatedBy   Int
+  // deletedAt   DateTime?
 
-  brand    Brand    @relation(fields: [brandId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+  brand Brand @relation(fields: [brandId], references: [id])
 
+  orders              Order[]
   productTranslations ProductTranslation[]
   variants            Variant[]
   skus                Sku[]
-  productCategories   ProductCategory[]
+  categories          Category[]
   reviews             Review[]
 }
 
-model ProductCategory {
-  productId  Int
-  categoryId Int
+// model ProductCategory {
+//   productId  Int
+//   categoryId Int
 
-  product  Product  @relation(fields: [productId], references: [id])
-  category Category @relation(fields: [categoryId], references: [id])
+//   product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+//   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
 
-  @@id([productId, categoryId])
-}
+//   @@id([productId, categoryId])
+// }
 
 model ProductSkuSnapshot {
   id          Int       @id @default(autoincrement())
@@ -196,6 +187,7 @@ model Order {
 
   user               User                 @relation(fields: [userId], references: [id])
   productSkuSnapshot ProductSkuSnapshot[]
+  products           Product[]
 }
 
 model CartItem {
@@ -207,24 +199,27 @@ model CartItem {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  sku  Sku  @relation(fields: [skuId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  sku  Sku  @relation(fields: [skuId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model Category {
-  id               Int       @id @default(autoincrement())
-  name             String    @unique
-  logo             String
+  id   Int    @id @default(autoincrement())
+  name String @unique
+  logo String
+
   parentCategoryId Int?
-  products         Product[]
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  deletedAt        DateTime?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
 
   parentCategory       Category?             @relation("parentCategory", fields: [parentCategoryId], references: [id])
   childrenCategory     Category[]            @relation("parentCategory")
   categoryTranslations CategoryTranslation[]
-  productCategories    ProductCategory[]
+  products             Product[]
 }
 
 model Brand {
@@ -249,51 +244,55 @@ model Review {
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
-  product Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
   user    User    @relation(fields: [userId], references: [id])
 }
 
 model Variant {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   name      String
   productId Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // deletedAt DateTime?
 
-  product       Product         @relation(fields: [productId], references: [id])
-  variantOption VariantOption[]
+  product        Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variantOptions VariantOption[]
+
+  @@unique([id, productId])
 }
 
 model VariantOption {
-  id        Int       @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   value     String
   variantId Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // deletedAt DateTime?
 
-  variant          Variant            @relation(fields: [variantId], references: [id])
+  variant          Variant            @relation(fields: [variantId], references: [id], onDelete: Cascade)
   skuVariantOption SkuVariantOption[]
 }
 
 model Sku {
-  id     Int    @id @default(autoincrement())
-  value  String
-  price  Float
-  stock  Int
-  images String
+  id    Int    @id @default(autoincrement())
+  value String
+  price Float
+  stock Int
+  image String
 
   productId Int
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  deletedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  // deletedAt DateTime?
 
-  product             Product              @relation(fields: [productId], references: [id])
+  product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
   skuVariantOptions   SkuVariantOption[]
   productSkuSnapshots ProductSkuSnapshot[]
   cartItems           CartItem[]
+
+  @@index([productId])
 }
 
 model SkuVariantOption {
@@ -319,44 +318,44 @@ model Language {
 }
 
 model UserTranslation {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   address    String?
   desc       String?
   userId     Int
   languageId String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  // deletedAt  DateTime?
 
   user     User     @relation(fields: [userId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
 }
 
 model ProductTranslation {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
-  desc       String?
+  desc       String
   productId  Int
   languageId String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  // deletedAt  DateTime?
 
-  product  Product  @relation(fields: [productId], references: [id])
-  language Language @relation(fields: [languageId], references: [id])
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
 
-  @@unique([productId,languageId])
+  @@unique([productId, languageId])
 }
 
 model CategoryTranslation {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   name       String
   desc       String
   categoryId Int
   languageId String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  // deletedAt  DateTime?
 
   category Category @relation(fields: [categoryId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
@@ -365,14 +364,13 @@ model CategoryTranslation {
 }
 
 model BrandTranslation {
-  id         Int       @id @default(autoincrement())
+  id         Int      @id @default(autoincrement())
   // name       String
   desc       String
   brandId    Int
   languageId String
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   brand    Brand    @relation(fields: [brandId], references: [id])
   language Language @relation(fields: [languageId], references: [id])
@@ -391,7 +389,7 @@ enum OrderStatus {
   CANCELLED
 }
 
-enum VerificationType {
+enum VerificationCodeType {
   REGISTER
   FORGOT_PASSWORD
   LOGIN

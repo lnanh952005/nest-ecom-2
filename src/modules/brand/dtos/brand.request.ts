@@ -1,23 +1,23 @@
-import z from 'zod';
+import {
+  brandSchema,
+  brandTranslationSchema,
+} from '@share/schemas/brand.schema';
 
-export const createBrandDto = z.strictObject({
-  name: z.string(),
-  logo: z.string(),
-});
+export const createBrandDto = brandSchema
+  .pick({
+    name: true,
+    logo: true,
+  })
+  .strict();
 
-export const updateBrandDto = z.strictObject({
-  name: z.string().optional(),
-  logo: z.string().optional(),
-});
+export const updateBrandDto = createBrandDto;
 
-export const createBrandTranslationDto = z.strictObject({
-  languageId: z.string(),
-  brandId: z.number(),
-  desc: z.string(),
-});
+export const createBrandTranslationDto = brandTranslationSchema
+  .pick({
+    brandId: true,
+    languageId: true,
+    desc: true,
+  })
+  .strict();
 
-export const updateBrandTranslationDto = z.strictObject({
-  languageId: z.string().optional(),
-  brandId: z.number().optional(),
-  desc: z.string().optional(),
-});
+export const updateBrandTranslationDto = createBrandTranslationDto;

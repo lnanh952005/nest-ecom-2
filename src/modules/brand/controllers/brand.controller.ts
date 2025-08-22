@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
   Query,
   UseInterceptors,
 } from '@nestjs/common';
@@ -28,9 +28,7 @@ import { BrandService } from 'src/modules/brand/services/brand.service';
 
 @Controller('brands')
 export class BrandController {
-  constructor(
-    private brandService: BrandService
-  ) {}
+  constructor(private brandService: BrandService) {}
 
   @Get()
   @Public()
@@ -39,33 +37,24 @@ export class BrandController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
   ) {
-    return await this.brandService.findAll({ page: +page, limit: +limit});
+    return await this.brandService.findAll({ page: +page, limit: +limit });
   }
 
   @Get(':id')
   @Public()
+  @UseInterceptors(new ValidationInterceptor({ serialize: brandResDto }))
   async findById(@Param('id') id: string) {
     return await this.brandService.findById(+id);
   }
 
   @Post()
-  @UseInterceptors(
-    new ValidationInterceptor({
-      validate: createBrandDto,
-      serialize: brandResDto,
-    }),
-  )
+  @UseInterceptors(new ValidationInterceptor({ validate: createBrandDto }))
   async create(@Body() body: CreateBrandDtoType) {
     return await this.brandService.create(body);
   }
 
-  @Patch(':id')
-  @UseInterceptors(
-    new ValidationInterceptor({
-      validate: updateBrandDto,
-      serialize: brandResDto,
-    }),
-  )
+  @Put(':id')
+  @UseInterceptors(new ValidationInterceptor({ validate: updateBrandDto }))
   async updateById(@Param('id') id: string, @Body() body: UpdateBrandDtoType) {
     return await this.brandService.updateById({ id: +id, data: body });
   }

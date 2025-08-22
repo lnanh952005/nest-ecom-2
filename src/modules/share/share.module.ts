@@ -18,6 +18,8 @@ import { S3Service } from 'src/modules/share/services/s3.service';
 import { BrandTranslationRepository } from 'src/modules/share/repositories/brandTranslation.repository';
 import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
 import { CategoryTranslationRepository } from 'src/modules/share/repositories/categoryTranslation.repository';
+import { CartRepository } from '@share/repositories/cartItem.repository';
+import { SkuRepository } from '@share/repositories/sku.repository';
 
 const Service = [
   PrismaService,
@@ -38,7 +40,9 @@ const Repository = [
   BrandRepository,
   BrandTranslationRepository,
   CategoryRepository,
-  CategoryTranslationRepository
+  CategoryTranslationRepository,
+  CartRepository,
+  SkuRepository,
 ];
 
 @Global()

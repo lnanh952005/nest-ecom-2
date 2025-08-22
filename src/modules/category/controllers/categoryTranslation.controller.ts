@@ -4,9 +4,9 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
-  UseInterceptors,
+  Put,
+  UseInterceptors
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import { Message } from 'src/decorators/message.decorator';
@@ -21,7 +21,7 @@ import {
 } from 'src/modules/category/dtos/category.request';
 import { CategoryTranslationService } from 'src/modules/category/services/categoryTranslation.service';
 
-@Controller('categoryTranslations')
+@Controller('category-translations')
 export class CategoryTranslationController {
   constructor(private categoryTranslationService: CategoryTranslationService) {}
 
@@ -45,7 +45,7 @@ export class CategoryTranslationController {
     return await this.categoryTranslationService.create(body);
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseInterceptors(
     new ValidationInterceptor({ validate: updateCategoryTranslationDto }),
   )

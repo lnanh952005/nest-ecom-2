@@ -4,8 +4,8 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
   UseInterceptors,
 } from '@nestjs/common';
 import { Message } from 'src/decorators/message.decorator';
@@ -34,30 +34,20 @@ export class RoleController {
     return await this.roleService.findAll();
   }
 
-  @Post()
-  @UseInterceptors(
-    new ValidationInterceptor({
-      validate: createRoleDto,
-      serialize: roleResDto,
-    }),
-  )
-  async create(@Body() body: CreateRoleDtoType) {
-    return await this.roleService.create(body);
-  }
-
   @Get(':id')
   @UseInterceptors(new ValidationInterceptor({ serialize: roleResDto }))
   async findById(@Param('id') id: string) {
     return await this.roleService.findById(+id);
   }
 
-  @Patch(':id')
-  @UseInterceptors(
-    new ValidationInterceptor({
-      validate: updateRoleDto,
-      serialize: roleResDto,
-    }),
-  )
+  @Post()
+  @UseInterceptors(new ValidationInterceptor({ validate: createRoleDto }))
+  async create(@Body() body: CreateRoleDtoType) {
+    return await this.roleService.create(body);
+  }
+
+  @Put(':id')
+  @UseInterceptors(new ValidationInterceptor({ validate: updateRoleDto }))
   async updateById(@Param('id') id: string, @Body() body: UpdateRoleDtoType) {
     return await this.roleService.updateById({ id: +id, data: body });
   }

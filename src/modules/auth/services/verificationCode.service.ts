@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { VerificationType } from '@prisma/client';
+import { VerificationCodeType } from '@prisma/client';
 import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
 import { InvalidOTPException, OTPExpiredException } from '../auth.error';
 
@@ -18,7 +18,7 @@ export class VerificationCodeService {
   }: {
     email: string;
     code: string;
-    type: VerificationType;
+    type: VerificationCodeType;
   }) {
     const verificationCode =
       await this.verificationCodeRepository.findByEmailAndCodeAndType({

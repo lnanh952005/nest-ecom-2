@@ -4,10 +4,7 @@ import {
   LanguageExistedException,
   LanguageNotFoundException,
 } from './language.error';
-import {
-  CreateLanguageDtoType,
-  UpdateLanguageDtoType,
-} from './dtos/language.request';
+import { CreateLanguageDtoType, UpdateLanguageDtoType } from '@language/language.type';
 
 @Injectable()
 export class LanguageService {

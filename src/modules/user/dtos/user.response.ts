@@ -1,34 +1,23 @@
 import z from 'zod';
-import { UserStatus } from '@prisma/client';
+import { paginationSchema, roleSchema } from '@share/schemas/auth.schema';
+import { userSchema } from '@share/schemas/user.schema';
 
-export const userResDto = z.object({
-  id: z.number(),
-  email: z.string(),
-  name: z.string(),
-  phoneNumber: z.string(),
-  avatar: z.string().nullable(),
-  status: z.nativeEnum(UserStatus),
-  deletedAt: z.date().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date().nullable(),
-  role: z.object({
-    id: z.number(),
-    name: z.string(),
-  }),
-});
+export const userResDto = userSchema
+  .omit({
+    password: true,
+  })
+  .extend({
+    role: roleSchema.omit({
+      createdAt: true,
+      updatedAt: true,
+    }),
+  });
 
-export const userListResDto = z.object({
-  page: z.number(),
-  limit: z.number(),
-  totalPages: z.number(),
-  totalItems: z.number(),
+export const userListResDto = paginationSchema.extend({
   items: z.array(
-    userResDto.pick({
-      id: true,
-      email: true,
-      name: true,
-      status: true,
-      role: true,
+    userResDto.omit({
+      createdAt: true,
+      updatedAt: true,
     }),
   ),
 });

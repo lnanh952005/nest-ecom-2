@@ -76,19 +76,15 @@ export class AuthGuard implements CanActivate {
           id: roleId,
         },
         include: {
-          permissionRoles: {
-            include: {
-              permission: true,
-            },
-          },
+          permissions: true,
         },
       })
       .catch(() => {
         throw new ForbiddenException();
       });
-    const isCanAccess = role.permissionRoles
-      .map((e) => e.permission)
-      .some((e) => e.path == path && e.method == method);
+    const isCanAccess = role.permissions.some(
+      (e) => e.path == path && e.method == method,
+    );
     if (!isCanAccess) {
       throw new ForbiddenException('can not access');
     }

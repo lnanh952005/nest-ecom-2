@@ -1,7 +1,21 @@
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
+import { faker } from '@faker-js/faker';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from 'src/app.module';
 import { PrismaClient, RoleEnum } from '@prisma/client';
+
+import { AppModule } from 'src/app.module';
+import { createVnPhone } from '@share/utils/helper.util';
+
+const CLIENT_MODULE = ['auth', 'media', 'profile', 'cart'];
+const SELLER_MODULE = [
+  'auth',
+  'media',
+  'product-management',
+  'product-translations',
+  'profile',
+  'cart',
+];
 
 const main = async () => {
   const app = await NestFactory.create(AppModule);
@@ -11,29 +25,81 @@ const main = async () => {
 
   const prismaService = new PrismaClient();
 
-  const [adminRole] = await prismaService.role.createManyAndReturn({
-    data: [
-      {
-        name: RoleEnum.ADMIN,
-      },
-      {
-        name: RoleEnum.CLIENT,
-      },
-      {
-        name: RoleEnum.SELLER,
-      },
-    ],
-    skipDuplicates: true,
-  });
+  const [adminRole, sellerRole, clientRole] =
+    await prismaService.role.createManyAndReturn({
+      data: [
+        {
+          name: RoleEnum.ADMIN,
+        },
+        {
+          name: RoleEnum.SELLER,
+        },
+        {
+          name: RoleEnum.CLIENT,
+        },
+      ],
+      skipDuplicates: true,
+    });
 
   await prismaService.user.createMany({
-    data: {
-      email: 'admin@gmail.com',
-      name: 'admin',
-      password: await bcrypt.hash('123456', 10),
-      phoneNumber: '0939271237',
-      roleId: adminRole.id,
-    },
+    data: [
+      {
+        email: 'admin@gmail.com',
+        name: 'admin',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: adminRole.id,
+        avatar: faker.image.avatar(),
+      },
+      {
+        email: 'seller2@gmail.com',
+        name: 'seller2',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: sellerRole.id,
+        avatar: faker.image.avatar(),
+      },
+      {
+        email: 'seller3@gmail.com',
+        name: 'seller3',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: sellerRole.id,
+        avatar: faker.image.avatar(),
+      },
+      {
+        email: 'seller4@gmail.com',
+        name: 'seller4',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: sellerRole.id,
+        avatar: faker.image.avatar(),
+      },
+      {
+        email: 'seller5@gmail.com',
+        name: 'seller5',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: sellerRole.id,
+        avatar: faker.image.avatar(),
+      },
+      {
+        email: 'seller6@gmail.com',
+        name: 'seller6',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: sellerRole.id,
+        avatar: faker.image.avatar(),
+      },
+      {
+        email: 'client@gmail.com',
+        name: 'client',
+        password: await bcrypt.hash('123456', 10),
+        phoneNumber: createVnPhone(),
+        roleId: clientRole.id,
+        avatar: faker.image.avatar(),
+      },
+    ],
     skipDuplicates: true,
   });
 
@@ -47,81 +113,119 @@ const main = async () => {
       }
     })
     .filter((item) => item !== undefined);
-  console.log(availableRoutes);
   for (const e of availableRoutes as any) {
     const method = e.method.toUpperCase();
-    await prismaService.permission.createMany({
+    await prismaService.permission.create({
       data: {
         method,
         path: e.path,
         name: e.path + ' ' + method,
-        moduel: String(e.path).split('/')[1],
+        module: String(e.path).split('/')[1],
       },
-      skipDuplicates: true,
     });
   }
   const permissions = await prismaService.permission.findMany();
-  for (const e of permissions) {
-    await prismaService.permissionRole.createMany({
+  const adminPermissionIds = permissions.map((e) => ({ id: e.id }));
+  const sellerPermissionIds = permissions
+    .filter((e) => SELLER_MODULE.includes(e.module))
+    .map((e) => ({ id: e.id }));
+  const clientPermissionIds = permissions
+    .filter((e) => CLIENT_MODULE.includes(e.module))
+    .map((e) => ({ id: e.id }));
+
+  await Promise.all([
+    updatePermission({
+      permissionIds: adminPermissionIds,
+      roleId: adminRole.id,
+    }),
+    updatePermission({
+      permissionIds: sellerPermissionIds,
+      roleId: sellerRole.id,
+    }),
+    updatePermission({
+      permissionIds: clientPermissionIds,
+      roleId: clientRole.id,
+    }),
+  ]);
+
+  const brands = await prismaService.brand.createManyAndReturn({
+    data: new Array(50).fill(0).map((e) => ({
+      name: faker.company.name(),
+      logo: 'https://',
+    })),
+    skipDuplicates: true,
+  });
+
+  await prismaService.language.createMany({
+    data: new Array(10).fill(0).map((e) => {
+      const lang = faker.location.language();
+      return {
+        id: lang.alpha2,
+        name: lang.name,
+      };
+    }),
+    skipDuplicates: true,
+  });
+
+  await prismaService.category.createMany({
+    data: new Array(100).fill(0).map((e, i) => ({
+      name: faker.commerce.department() + i,
+      logo: faker.image.urlPicsumPhotos(),
+      parentCategoryId:
+        i > 0
+          ? faker.helpers.arrayElement([null, crypto.randomInt(1, i + 1)])
+          : null,
+    })),
+  });
+
+  for (let i = 1; i <= 2000; i++) {
+    const createdById = crypto.randomInt(1, 7);
+    await prismaService.product.create({
       data: {
-        permissionId: e.id,
-        roleId: adminRole.id,
+        name: faker.commerce.productName(),
+        basePrice: crypto.randomInt(9999999),
+        virtualPrice: crypto.randomInt(10000000, 50000000),
+        images: new Array(5)
+          .fill(0)
+          .map((e) => faker.image.urlLoremFlickr({ category: 'product' })),
+        publishedAt: faker.helpers.arrayElement([
+          null,
+          faker.date.past({ years: 2 }),
+          faker.date.future({ years: 2 }),
+        ]),
+        createdBy: createdById,
+        updatedBy: createdById,
+        brand: {
+          connect: brands[crypto.randomInt(brands.length)],
+        },
+        categories: {
+          connect: new Array(100)
+            .fill(0)
+            .map((e) => ({ id: crypto.randomInt(1, 101) })),
+        },
       },
-      skipDuplicates: true,
     });
   }
 
-  const [nike, adidas] = await prismaService.brand.createManyAndReturn({
-    data: [
-      {
-        logo: 'https://...',
-        name: 'Nike',
+  async function updatePermission({
+    permissionIds,
+    roleId,
+  }: {
+    permissionIds: { id: number }[];
+    roleId: number;
+  }) {
+    await prismaService.role.update({
+      where: {
+        id: roleId,
       },
-      {
-        logo: 'https://...',
-        name: 'Adidas',
+      data: {
+        permissions: {
+          connect: permissionIds,
+        },
       },
-    ],
-    skipDuplicates: true,
-  });
-  const [en, vi] = await prismaService.language.createManyAndReturn({
-    data: [
-      {
-        id: 'en',
-        name: 'English',
-      },
-      {
-        id: 'vi',
-        name: 'Tiếng Việt',
-      },
-    ],
-    skipDuplicates: true,
-  });
-  await prismaService.brandTranslation.createMany({
-    data: [
-      {
-        brandId: nike.id,
-        languageId: en.id,
-        desc: 'popular brand',
-      },
-      {
-        brandId: nike.id,
-        languageId: vi.id,
-        desc: 'thương hiệu nổi tiếng',
-      },
-      {
-        brandId: adidas.id,
-        languageId: vi.id,
-        desc: 'thương hiệu nổi tiếng',
-      },
-      {
-        brandId: adidas.id,
-        languageId: en.id,
-        desc: 'popular brand',
-      },
-    ],
-  });
+    });
+  }
+
   process.exit(0);
 };
-
 main();

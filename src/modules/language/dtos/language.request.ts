@@ -1,13 +1,12 @@
-import z from 'zod';
+import { languageSchema } from '@share/schemas/language.schema';
 
-export const createLanguageDto = z.strictObject({
-  id: z.string(),
-  name: z.string(),
-});
+export const createLanguageDto = languageSchema
+  .pick({
+    id: true,
+    name: true,
+  })
+  .strict();
 
 export const updateLanguageDto = createLanguageDto.pick({
   name: true,
 });
-
-export type CreateLanguageDtoType = z.infer<typeof createLanguageDto>
-export type UpdateLanguageDtoType = z.infer<typeof updateLanguageDto>

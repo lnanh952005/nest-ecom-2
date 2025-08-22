@@ -1,25 +1,17 @@
+import { permissionSchema, roleSchema } from '@share/schemas/auth.schema';
 import z from 'zod';
 
-export const roleResDto = z.object({
-  id: z.number(),
-  name: z.string(),
-  desc: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date().nullable(),
+export const roleResDto = roleSchema.extend({
   permissions: z.array(
-    z.object({
-      id: z.number(),
-      path: z.string(),
-      method: z.string(),
+    permissionSchema.omit({
+      createdAt: true,
+      updatedAt: true,
     }),
   ),
 });
 
 export const roleListResDto = z.array(
-  roleResDto.pick({
-    id: true,
-    name: true,
-    desc: true,
+  roleResDto.omit({
+    permissions: true,
   }),
 );

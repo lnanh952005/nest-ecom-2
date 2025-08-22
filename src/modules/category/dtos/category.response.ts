@@ -1,6 +1,6 @@
 import z from 'zod';
 
-const categoryTranslation = z.object({
+export const categoryTranslation = z.object({
   id: z.number(),
   desc: z.string(),
   categoryId: z.number(),
@@ -22,8 +22,8 @@ export const categoryResDto = z.object({
       languageId: true,
     }),
   ),
+  createdAt:z.date(),
+  updatedAt: z.date()
 });
 
-export const categoryListResDto = z.array(categoryResDto.omit({
-  categoryTranslations:true
-}));
+export const categoryListResDto = z.array(categoryResDto);

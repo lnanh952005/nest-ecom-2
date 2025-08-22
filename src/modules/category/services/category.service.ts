@@ -45,10 +45,10 @@ export class CategoryService {
   }
 
   async updateById({ id, data }: { id: number; data: UpdateCategoryDtoType }) {
+    if (id == data.parentCategoryId) {
+      throw ParentCategoryNotFoundException;
+    }
     if (data.parentCategoryId) {
-      if (id == data.parentCategoryId) {
-        throw ParentCategoryNotFoundException;
-      }
       await this.categoryRepository
         .findById({
           id: data.parentCategoryId,

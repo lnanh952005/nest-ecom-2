@@ -113,11 +113,9 @@ export class UserService {
         });
     }
     if (data.roleId) {
-      await this.roleRepository
-        .findById({ id, includePermission: false })
-        .catch(() => {
-          throw RoleNotFoundException;
-        });
+      await this.roleRepository.findById(data.roleId).catch(() => {
+        throw RoleNotFoundException;
+      });
     }
     return await this.userRepository.updateByIdOrEmail({
       unique: { id },

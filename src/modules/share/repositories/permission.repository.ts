@@ -20,15 +20,8 @@ export class PermissionRepository {
       this.prismaService.permission.findMany({
         skip: (page - 1) * limit,
         take: limit,
-        where: {
-          deletedAt: null,
-        },
       }),
-      this.prismaService.permission.count({
-        where: {
-          deletedAt: null,
-        },
-      }),
+      this.prismaService.permission.count(),
     ]);
     const totalPages = Math.ceil(totalItems / limit);
     return {
@@ -62,11 +55,8 @@ export class PermissionRepository {
   }
 
   async deleteById(id: number) {
-    await this.prismaService.permission.update({
+    await this.prismaService.permission.delete({
       where: { id },
-      data: {
-        deletedAt: new Date(),
-      },
     });
   }
 }

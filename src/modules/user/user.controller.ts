@@ -4,13 +4,20 @@ import {
   Delete,
   Get,
   Param,
-  Patch,
   Post,
+  Put,
   Query,
-  UseInterceptors,
+  UseInterceptors
 } from '@nestjs/common';
-import { UserService } from './user.service';
+import { Message } from 'src/decorators/message.decorator';
+import { User } from 'src/decorators/user.decorator';
 import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
+import { UserNotFoundException } from 'src/modules/auth/auth.error';
+import { AccessTokenPayload } from 'src/modules/auth/auth.type';
+import {
+  createUserDto,
+  updateUserDto,
+} from 'src/modules/user/dtos/user.request';
 import {
   userListResDto,
   userResDto,
@@ -19,14 +26,7 @@ import {
   CreateUserDtoType,
   UpdateUserDtoType,
 } from 'src/modules/user/user.type';
-import {
-  createUserDto,
-  updateUserDto,
-} from 'src/modules/user/dtos/user.request';
-import { User } from 'src/decorators/user.decorator';
-import { Message } from 'src/decorators/message.decorator';
-import { AccessTokenPayload } from 'src/modules/auth/auth.type';
-import { UserNotFoundException } from 'src/modules/auth/auth.error';
+import { UserService } from './user.service';
 
 @Controller('users')
 export class UserController {
@@ -56,7 +56,7 @@ export class UserController {
     return await this.userSerice.findByIdOrEmail({ id: +id });
   }
 
-  @Patch(':id')
+  @Put(':id')
   @UseInterceptors(new ValidationInterceptor({ validate: updateUserDto }))
   async updateById(
     @Param('id') id: string,

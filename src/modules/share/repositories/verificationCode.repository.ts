@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { VerificationType } from '@prisma/client';
+import { VerificationCodeType } from '@prisma/client';
 import { PrismaService } from '../services/prisma.service';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class VerificationCodeRepository {
 
   async findByEmailAndCodeAndType(data: {
     email: string;
-    type: VerificationType;
+    type: VerificationCodeType;
     code: string;
   }) {
     return await this.prismaService.verificationCode.findUnique({
@@ -33,10 +33,10 @@ export class VerificationCodeRepository {
     create,
     update,
   }: {
-    where: { email: string; type: VerificationType };
+    where: { email: string; type: VerificationCodeType };
     create: {
       email: string;
-      type: VerificationType;
+      type: VerificationCodeType;
       code: string;
       expireAt: Date;
     };

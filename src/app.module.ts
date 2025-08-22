@@ -3,24 +3,25 @@ import { Module } from '@nestjs/common';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
-import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './modules/auth/auth.module';
-import { ShareModule } from './modules/share/share.module';
-
 import { AuthGuard } from './guards/auth.guard';
-import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { AppController } from './app.controller';
+import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
-import { CustomZodValidationPipe } from './pipes/customZodValidation.pipe';
-import { HttpExceptionFilter } from './filters/httpException.filter';
-import { LanguageModule } from './modules/language/language.module';
-import { ZodErrorFilter } from './filters/zodError.filter';
-import { PermissionModule } from 'src/modules/permission/permission.module';
 import { RoleModule } from 'src/modules/role/role.module';
-import { ProfileModule } from 'src/modules/profile/profile.module';
+import { ShareModule } from './modules/share/share.module';
+import { ZodErrorFilter } from './filters/zodError.filter';
 import { MediaModule } from 'src/modules/media/media.module';
 import { BrandModule } from 'src/modules/brand/brand.module';
+import { ProfileModule } from 'src/modules/profile/profile.module';
+import { ProductModule } from 'src/modules/product/product.module';
+import { LanguageModule } from './modules/language/language.module';
+import { HttpExceptionFilter } from './filters/httpException.filter';
 import { CategoryModule } from 'src/modules/category/category.module';
+import { CustomZodValidationPipe } from './pipes/customZodValidation.pipe';
+import { PermissionModule } from 'src/modules/permission/permission.module';
+import { TransformInterceptor } from './interceptors/transform.interceptor';
+import { CartModule } from 'src/modules/cart/cart.module';
 
 @Module({
   imports: [
@@ -34,6 +35,9 @@ import { CategoryModule } from 'src/modules/category/category.module';
     BrandModule,
     CategoryModule,
     PermissionModule,
+    ProfileModule,
+    ProductModule,
+    CartModule,
     I18nModule.forRoot({
       fallbackLanguage: 'all',
       loaderOptions: {
@@ -41,8 +45,8 @@ import { CategoryModule } from 'src/modules/category/category.module';
         watch: true,
       },
       resolvers: [
-        { use: QueryResolver, options: ['lang'] },
         AcceptLanguageResolver,
+        { use: QueryResolver, options: ['lang'] },
       ],
       typesOutputPath: path.resolve('src/generated/i18n.generated.ts'),
     }),

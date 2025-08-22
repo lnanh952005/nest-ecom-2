@@ -1,10 +1,13 @@
 import z from 'zod';
+import { userSchema } from '@share/schemas/user.schema';
 
-export const updateProfileDto = z.strictObject({
-  name: z.string().optional(),
-  phoneNumber: z.string().optional(),
-  avatar: z.string().optional(),
-});
+export const updateProfileDto = userSchema
+  .pick({
+    name: true,
+    avatar: true,
+    phoneNumber: true,
+  })
+  .strict();
 
 export const changePasswordDto = z.strictObject({
   password: z.string(),

@@ -1,31 +1,29 @@
-import z from 'zod';
+import {
+  categorySchema,
+  categoryTranslationSchema,
+} from '@share/schemas/category.schema';
 
-export const getParentCategoryIdQueryDto = z.strictObject({
-  parentCategoryId: z.number().optional(),
-});
+// const getParentCategoryIdQueryDto = z.strictObject({
+//   parentCategoryId: z.number().optional(),
+// });
 
-export const createCategoryDto = z.strictObject({
-  parentCategoryId: z.number().optional(),
-  name: z.string(),
-  logo: z.string(),
-});
+export const createCategoryDto = categorySchema
+  .pick({
+    parentCategoryId: true,
+    name: true,
+    logo: true,
+  })
+  .strict();
 
-export const updateCategoryDto = z.strictObject({
-  name: z.string().optional(),
-  logo: z.string().optional(),
-  parentCategoryId: z.number().nullable().optional(),
-});
+export const updateCategoryDto = createCategoryDto;
 
-export const createCategoryTranslationDto = z.strictObject({
-  categoryId: z.number(),
-  languageId: z.string(),
-  name: z.string(),
-  desc: z.string(),
-});
+export const createCategoryTranslationDto = categoryTranslationSchema
+  .pick({
+    categoryId: true,
+    languageId: true,
+    name: true,
+    desc: true,
+  })
+  .strict();
 
-export const updateCategoryTranslationDto = z.strictObject({
-  categoryId: z.number().optional(),
-  languageId: z.string().optional(),
-  name: z.string().optional(),
-  desc: z.string().optional(),
-});
+export const updateCategoryTranslationDto = createCategoryTranslationDto;

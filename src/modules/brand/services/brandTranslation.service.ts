@@ -72,21 +72,17 @@ export class BrandTranslationService {
     id: number;
     data: UpdateBrandTranslationDtoType;
   }) {
-    if (data.brandId) {
-      await this.brandRepository
-        .findById({
-          id: data.brandId,
-          languageId: I18nContext.current()?.lang as string,
-        })
-        .catch(() => {
-          throw BrandNotFoundException;
-        });
-    }
-    if (data.languageId) {
-      await this.languageRepository.findById(data.languageId).catch(() => {
-        throw LanguageNotFoundException;
+    await this.brandRepository
+      .findById({
+        id: data.brandId,
+        languageId: "all",
+      })
+      .catch(() => {
+        throw BrandNotFoundException;
       });
-    }
+    await this.languageRepository.findById(data.languageId).catch(() => {
+      throw LanguageNotFoundException;
+    });
     try {
       return await this.BrandTranslationRepository.updateById({ id, data });
     } catch (error) {

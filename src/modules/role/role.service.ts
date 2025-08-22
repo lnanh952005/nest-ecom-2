@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { Role, RoleEnum } from '@prisma/client';
+import { RoleEnum } from '@prisma/client';
 import {
   RoleAlreadyExistedException,
   RoleNotFoundException,
@@ -19,6 +19,18 @@ export class RoleService {
     return await this.roleRepository.findAll();
   }
 
+  async findById(id: number) {
+    return await this.roleRepository
+      .getDetailById(id)
+      .catch(() => {
+        throw RoleNotFoundException;
+      });
+  }
+
+  async findByName(name: RoleEnum) {
+    return await this.roleRepository.findByName(name);
+  }
+
   async create(data: CreateRoleDtoType) {
     try {
       return await this.roleRepository.create(data);
@@ -27,42 +39,11 @@ export class RoleService {
     }
   }
 
-  async findById(id: number) {
-    const result = await this.roleRepository
-      .findById({ id, includePermission: true })
-      .catch(() => {
-        throw RoleNotFoundException;
-      });
-    const permissions = result?.permissionRoles
-      .map((e) => e.permission)
-      .map((e) => ({
-        id: e.id,
-        path: e.path,
-        method: e.method,
-      }));
-    return {
-      ...result,
-      permissions,
-    };
-  }
-
-  async findByName(name: RoleEnum) {
-    return await this.roleRepository.findByName(name);
-  }
-
   async updateById({ id, data }: { id: number; data: UpdateRoleDtoType }) {
     try {
       const result = await this.roleRepository.updateById({ id, data });
-      const permissions = result?.permissionRoles
-        .map((e) => e.permission)
-        .map((e) => ({
-          id: e.id,
-          path: e.path,
-          method: e.method,
-        }));
       return {
         ...result,
-        permissions,
       };
     } catch (error) {
       if (isUniqueConstraintPrismaError(error)) {
