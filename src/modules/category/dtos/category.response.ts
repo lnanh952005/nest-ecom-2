@@ -1,6 +1,7 @@
+import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
-export const categoryTranslation = z.object({
+const categoryTranslation = z.object({
   id: z.number(),
   desc: z.string(),
   categoryId: z.number(),
@@ -9,7 +10,7 @@ export const categoryTranslation = z.object({
   updatedAt: z.date(),
 });
 
-export const categoryResDto = z.object({
+export const categoryDetailDto = z.object({
   id: z.number(),
   name: z.string(),
   logo: z.string(),
@@ -22,8 +23,11 @@ export const categoryResDto = z.object({
       languageId: true,
     }),
   ),
-  createdAt:z.date(),
-  updatedAt: z.date()
+  createdAt: z.date(),
+  updatedAt: z.date(),
 });
 
-export const categoryListResDto = z.array(categoryResDto);
+export const categoryListDto = z.array(categoryDetailDto);
+
+export class CategoryDetailDto extends createZodDto(categoryDetailDto) {}
+export class CategoryListDto extends createZodDto(categoryListDto) {}

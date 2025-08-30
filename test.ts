@@ -1,4 +1,5 @@
-import { generateSkus } from 'src/modules/product/dtos/product.request';
+import { generateSkus } from "@share/utils/generateSku";
+
 
 const arr = [
   {

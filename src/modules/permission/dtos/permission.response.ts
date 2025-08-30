@@ -1,13 +1,17 @@
 import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
 import { paginationSchema, permissionSchema } from '@share/schemas/auth.schema';
 
-export const permissionResDto = permissionSchema;
+const permissionDetailDto = permissionSchema;
 
-export const permissionListResDto = paginationSchema.extend({
+const permissionListDto = paginationSchema.extend({
   items: z.array(
-    permissionResDto.omit({
+    permissionDetailDto.omit({
       createdAt: true,
       updatedAt: true,
     }),
   ),
 });
+
+export class PermissionDetailDto extends createZodDto(permissionDetailDto) {}
+export class PermissionListDto extends createZodDto(permissionListDto) {}

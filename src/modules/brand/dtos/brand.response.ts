@@ -1,10 +1,12 @@
 import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
 import {
   brandSchema,
   brandTranslationSchema,
 } from '@share/schemas/brand.schema';
+import { paginationSchema } from '@share/schemas/auth.schema';
 
-export const brandResDto = brandSchema
+const brandDetailDto = brandSchema
   .omit({
     deletedAt: true,
   })
@@ -17,15 +19,14 @@ export const brandResDto = brandSchema
     ),
   });
 
-export const brandListResDto = z.object({
-  page: z.number(),
-  limit: z.number(),
-  totalPages: z.number(),
-  totalItems: z.number(),
+const brandListDto = paginationSchema.extend({
   items: z.array(
-    brandResDto.omit({
+    brandDetailDto.omit({
       createdAt: true,
       updatedAt: true,
     }),
   ),
 });
+
+export class BrandDetailDto extends createZodDto(brandDetailDto) {}
+export class BrandListDto extends createZodDto(brandListDto) {}

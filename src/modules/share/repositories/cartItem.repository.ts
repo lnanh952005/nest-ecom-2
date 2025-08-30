@@ -1,9 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@share/services/prisma.service';
-import {
-  AddSkuToCartDtoType,
-  UpdateCartItemDtoType
-} from 'src/modules/cart/card.type';
+import { AddSkuToCartDto, UpdateCartItemDto } from 'src/modules/cart/dtos/cart.request';
+import { CartDetailDto } from 'src/modules/cart/dtos/cart.response';
 
 @Injectable()
 export class CartRepository {
@@ -20,48 +18,83 @@ export class CartRepository {
     userId: number;
     languageId: string;
   }) {
-    const [items, totalItems] = await Promise.all([
-      this.prismaService.cartItem.findMany({
-        skip: (page - 1) * limit,
-        take: limit,
-        where: { userId },
-        orderBy: {
-          createdAt: 'desc',
+    const items = await this.prismaService.cartItem.findMany({
+      skip: (page - 1) * limit,
+      take: limit,
+      where: {
+        userId,
+        sku: {
+          product: {
+            publishedAt: {
+              lte: new Date(),
+              not: null,
+            },
+          },
         },
-        include: {
-          sku: {
-            include: {
-              product: {
-                include: {
-                  productTranslations: {
-                    where: {
-                      languageId: languageId == 'all' ? {} : languageId,
-                    },
+      },
+      orderBy: {
+        updatedAt: 'desc',
+      },
+      include: {
+        sku: {
+          include: {
+            product: {
+              include: {
+                user: true,
+                productTranslations: {
+                  where: {
+                    languageId: languageId == 'all' ? {} : languageId,
                   },
                 },
               },
             },
           },
         },
-      }),
-      this.prismaService.cartItem.count({
-        where: {
-          userId,
-        },
-      }),
-    ]);
+      },
+    });
+    const groupMap = new Map<number, CartDetailDto>();
+    for (const e of items) {
+      const shopId = e.sku.product.createdBy;
+      if (!groupMap.has(shopId)) {
+        groupMap.set(shopId, {
+          shop: {
+            id: shopId,
+            avatar: e.sku.product.user.avatar,
+            name: e.sku.product.user.name,
+          },
+          cartItems: [],
+        });
+      }
+      groupMap.get(shopId)?.cartItems.push(e);
+    }
+    const sortedGroup = Array.from(groupMap.values());
+
+    const skip = (page - 1) * limit;
+    const result = sortedGroup.slice(skip, skip + limit);
+
     return {
       page,
       limit,
-      totalPages: Math.ceil(totalItems / limit),
-      totalItems,
-      items,
+      totalPages: Math.ceil(sortedGroup.length / limit),
+      totalItems: sortedGroup.length,
+      items: result,
     };
   }
 
-  create({ data, userId }: { data: AddSkuToCartDtoType; userId: number }) {
-    return this.prismaService.cartItem.create({
-      data: {
+  upsert({ data, userId }: { data: AddSkuToCartDto; userId: number }) {
+    return this.prismaService.cartItem.upsert({
+      where: {
+        userId_skuId: {
+          userId,
+          skuId: data.skuId,
+        },
+      },
+      update: {
+        quantity: {
+          increment: data.quantity
+        }
+      },
+      create: {
         quantity: data.quantity,
         userId,
         skuId: data.skuId,
@@ -69,7 +102,7 @@ export class CartRepository {
     });
   }
 
-  updateById({ data, id }: { id: number; data: UpdateCartItemDtoType }) {
+  updateById({ data, id }: { id: number; data: UpdateCartItemDto }) {
     return this.prismaService.cartItem.update({
       where: {
         id,

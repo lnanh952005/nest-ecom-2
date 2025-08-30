@@ -20,11 +20,11 @@ import { DeviceRepository } from 'src/modules/share/repositories/device.reposito
 import { PasswordEncoderService } from '../../share/services/passwordEncoder.service';
 import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
 import {
-  ForgotPasswordDtoType,
-  LoginDtoType,
-  RefreshTokenDtoType,
-  RegisterDtoType,
-} from '../auth.type';
+  ForgotPasswordDto,
+  LoginDto,
+  RefreshTokenDto,
+  RegisterDto,
+} from '@auth/dtos/auth.request';
 
 @Injectable()
 export class AuthService {
@@ -43,7 +43,7 @@ export class AuthService {
     return await this.userRepository.findByIdOrEmail({ unique: { id } });
   }
 
-  async register({ email, password, name, code }: RegisterDtoType) {
+  async register({ email, password, name, code }: RegisterDto) {
     const verificationCode = await this.verificationCodeService.validate({
       code,
       email,
@@ -53,7 +53,7 @@ export class AuthService {
     const clientRole = (await this.roleRepository.findByName('CLIENT')) as Role;
     const hashedPassword = await this.passwordEncoderService.hash(password);
     const [user] = await Promise.all([
-      this.userRepository.create({
+      this.userRepository.register({
         email,
         name,
         password: hashedPassword,
@@ -69,7 +69,7 @@ export class AuthService {
     ip,
     userAgent,
   }: {
-    body: LoginDtoType;
+    body: LoginDto;
     userAgent: string;
     ip: string;
   }) {
@@ -188,7 +188,7 @@ export class AuthService {
     }
   }
 
-  async logout({ token }: RefreshTokenDtoType) {
+  async logout({ token }: RefreshTokenDto) {
     try {
       await this.tokenService.verifyRefreshToken(token);
       const { deviceId } =
@@ -210,7 +210,7 @@ export class AuthService {
     }
   }
 
-  async forgotPassword({ code, email, newPassword }: ForgotPasswordDtoType) {
+  async forgotPassword({ code, email, newPassword }: ForgotPasswordDto) {
     const verificationCode = await this.verificationCodeService.validate({
       code,
       email,
@@ -219,8 +219,8 @@ export class AuthService {
     const hashedPassword = await this.passwordEncoderService.hash(newPassword);
     try {
       const [updatedUser] = await Promise.all([
-        this.userRepository.updateByIdOrEmail({
-          unique: { email },
+        this.userRepository.updateByEmail({
+          email,
           data: { password: hashedPassword },
         }),
         this.verificationCodeService.deleteById(verificationCode.id),

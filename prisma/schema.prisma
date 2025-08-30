@@ -27,12 +27,15 @@ model User {
   role             Role              @relation(fields: [roleId], references: [id])
   refreshTokens    RefreshToken[]
   cartItems        CartItem[]
-  orders           Order[]
   reviews          Review[]
   fromUser         Message[]         @relation("FromUser")
   toUser           Message[]         @relation("ToUser")
   userTranslations UserTranslation[]
   devices          Device[]
+  Product          Product[]
+
+  ordersOfBuyer  Order[] @relation(name: "buyer")
+  ordersOfSeller Order[] @relation(name: "seller")
 }
 
 model Message {
@@ -133,6 +136,7 @@ model Product {
   images       String[]
 
   brandId Int
+  userId  Int
 
   publishedAt DateTime?
   createdAt   DateTime  @default(now())
@@ -142,6 +146,7 @@ model Product {
   // deletedAt   DateTime?
 
   brand Brand @relation(fields: [brandId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
 
   orders              Order[]
   productTranslations ProductTranslation[]
@@ -149,45 +154,40 @@ model Product {
   skus                Sku[]
   categories          Category[]
   reviews             Review[]
+  productSkuSnapshots ProductSkuSnapshot[]
 }
-
-// model ProductCategory {
-//   productId  Int
-//   categoryId Int
-
-//   product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-//   category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-
-//   @@id([productId, categoryId])
-// }
 
 model ProductSkuSnapshot {
   id          Int       @id @default(autoincrement())
   productName String
-  price       Float
-  images      String[]
+  skuPrice    Float
+  image       String
   skuValue    String
-  skuId       Int
-  orderId     Int
+  quantity    Int
+  skuId       Int?
+  productId   Int?
+  orderId     Int?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   deletedAt   DateTime?
-
-  sku   Sku   @relation(fields: [skuId], references: [id])
-  order Order @relation(fields: [orderId], references: [id])
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  sku         Sku?      @relation(fields: [skuId], references: [id], onDelete: SetNull)
+  order       Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
 }
 
 model Order {
   id        Int         @id @default(autoincrement())
-  userId    Int
+  userId    Int?
+  shopId    Int?
   status    OrderStatus
   createdAt DateTime    @default(now())
   updatedAt DateTime    @updatedAt
   deletedAt DateTime?
 
-  user               User                 @relation(fields: [userId], references: [id])
-  productSkuSnapshot ProductSkuSnapshot[]
-  products           Product[]
+  user                User?                @relation(name: "buyer", fields: [userId], references: [id], onDelete: SetNull)
+  shop                User?                @relation(name: "seller", fields: [shopId], references: [id], onDelete: SetNull)
+  productSkuSnapshots ProductSkuSnapshot[]
+  products            Product[]
 }
 
 model CartItem {
@@ -202,6 +202,7 @@ model CartItem {
   sku  Sku  @relation(fields: [skuId], references: [id], onDelete: Cascade)
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  @@unique([userId, skuId])
   @@index([userId])
 }
 
@@ -285,7 +286,6 @@ model Sku {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  // deletedAt DateTime?
 
   product             Product              @relation(fields: [productId], references: [id], onDelete: Cascade)
   skuVariantOptions   SkuVariantOption[]
@@ -381,7 +381,7 @@ model BrandTranslation {
 // ENUM
 
 enum OrderStatus {
-  PENDING_CONFIRMATION
+  PENDING_PAYMENT
   PENDING_PICKUP
   PENDING_DELIVER
   DELIVERED

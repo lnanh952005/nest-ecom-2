@@ -4,15 +4,15 @@ import {
   CategoryTranslationAlreadyExistsException,
   CategoryTranslationNotFoundException,
 } from 'src/modules/category/category.error';
-import {
-  CreateCategoryTranslationDtoType,
-  UpdateCategoryTranslationDtoType,
-} from 'src/modules/category/category.type';
 import { LanguageNotFoundException } from 'src/modules/language/language.error';
 import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
 import { LanguageRepository } from 'src/modules/share/repositories/language.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 import { CategoryTranslationRepository } from 'src/modules/share/repositories/categoryTranslation.repository';
+import {
+  CreateCategoryTranslationDto,
+  UpdateCategoryTranslationDto,
+} from '@category/dtos/category.request';
 
 @Injectable()
 export class CategoryTranslationService {
@@ -34,7 +34,7 @@ export class CategoryTranslationService {
     }
   }
 
-  async create(data: CreateCategoryTranslationDtoType) {
+  async create(data: CreateCategoryTranslationDto) {
     if (data.categoryId) {
       await this.categoryRepository
         .findById({ id: data.categoryId, languageId: 'all' })
@@ -61,7 +61,7 @@ export class CategoryTranslationService {
     id,
   }: {
     id: number;
-    data: UpdateCategoryTranslationDtoType;
+    data: UpdateCategoryTranslationDto;
   }) {
     if (data.categoryId) {
       await this.categoryRepository
@@ -81,7 +81,7 @@ export class CategoryTranslationService {
       if (isUniqueConstraintPrismaError(error)) {
         throw CategoryTranslationAlreadyExistsException;
       }
-      throw CategoryTranslationNotFoundException
+      throw CategoryTranslationNotFoundException;
     }
   }
 

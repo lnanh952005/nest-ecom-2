@@ -1,10 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CreateCategoryDtoType,
-  CreateCategoryTranslationDtoType,
-  UpdateCategoryDtoType,
-  UpdateCategoryTranslationDtoType,
-} from 'src/modules/category/category.type';
+  CreateCategoryTranslationDto,
+  UpdateCategoryTranslationDto,
+} from '@category/dtos/category.request';
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
 @Injectable()
@@ -23,19 +21,13 @@ export class CategoryTranslationRepository {
     });
   }
 
-  create(data: CreateCategoryTranslationDtoType) {
+  create(data: CreateCategoryTranslationDto) {
     return this.prismaService.categoryTranslation.create({
       data,
     });
   }
 
-  updateById({
-    data,
-    id,
-  }: {
-    id: number;
-    data: UpdateCategoryTranslationDtoType;
-  }) {
+  updateById({ data, id }: { id: number; data: UpdateCategoryTranslationDto }) {
     return this.prismaService.categoryTranslation.update({
       where: { id },
       data,

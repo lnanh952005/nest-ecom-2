@@ -7,10 +7,6 @@ import { UserRepository } from '../share/repositories/user.repository';
 import { PasswordEncoderService } from '../share/services/passwordEncoder.service';
 import { RoleRepository } from '../share/repositories/role.repository';
 import {
-  CreateUserDtoType,
-  UpdateUserDtoType,
-} from 'src/modules/user/user.type';
-import {
   CannotUpdateOrDeleteYourSelfException,
   DoNotHavePermissionToCreateOrUpdateRoleException,
 } from 'src/modules/user/user.error';
@@ -20,6 +16,7 @@ import {
   EmailNotFoundException,
 } from 'src/modules/auth/auth.error';
 import { RoleNotFoundException } from 'src/modules/role/role.error';
+import { CreateUserDto, UpdateUserDto } from '@user/dtos/user.request';
 
 @Injectable()
 export class UserService {
@@ -43,18 +40,13 @@ export class UserService {
     };
   }
 
-  async findByIdOrEmail(unique: { id: number } | { email: string }) {
-    return await this.userRepository
-      .findByIdOrEmail({
-        unique,
-        includeRole: true,
-      })
-      .catch(() => {
-        throw EmailNotFoundException;
-      });
+  async getUserDetailById(id: number) {
+    return await this.userRepository.getUserDetailById(id).catch(() => {
+      throw EmailNotFoundException;
+    });
   }
 
-  async create({ data, roleId }: { roleId: number; data: CreateUserDtoType }) {
+  async create({ data, roleId }: { roleId: number; data: CreateUserDto }) {
     if (data.roleId < roleId) {
       throw DoNotHavePermissionToCreateOrUpdateRoleException;
     }
@@ -88,7 +80,7 @@ export class UserService {
     id: number;
     roleId: number;
     userId: number;
-    data: UpdateUserDtoType;
+    data: UpdateUserDto;
   }) {
     if (id == userId) {
       throw CannotUpdateOrDeleteYourSelfException;
@@ -117,8 +109,8 @@ export class UserService {
         throw RoleNotFoundException;
       });
     }
-    return await this.userRepository.updateByIdOrEmail({
-      unique: { id },
+    return await this.userRepository.updateById({
+      id,
       data,
     });
   }

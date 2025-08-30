@@ -10,7 +10,6 @@ import { AuthModule } from './modules/auth/auth.module';
 import { UserModule } from './modules/user/user.module';
 import { RoleModule } from 'src/modules/role/role.module';
 import { ShareModule } from './modules/share/share.module';
-import { ZodErrorFilter } from './filters/zodError.filter';
 import { MediaModule } from 'src/modules/media/media.module';
 import { BrandModule } from 'src/modules/brand/brand.module';
 import { ProfileModule } from 'src/modules/profile/profile.module';
@@ -18,10 +17,12 @@ import { ProductModule } from 'src/modules/product/product.module';
 import { LanguageModule } from './modules/language/language.module';
 import { HttpExceptionFilter } from './filters/httpException.filter';
 import { CategoryModule } from 'src/modules/category/category.module';
-import { CustomZodValidationPipe } from './pipes/customZodValidation.pipe';
 import { PermissionModule } from 'src/modules/permission/permission.module';
 import { TransformInterceptor } from './interceptors/transform.interceptor';
 import { CartModule } from 'src/modules/cart/cart.module';
+import { ZodSerializerInterceptor } from 'nestjs-zod';
+import { CustomZodValidationPipe } from 'src/pipes/customZodValidation.pipe';
+import { OrderModule } from 'src/modules/order/order.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { CartModule } from 'src/modules/cart/cart.module';
     ProfileModule,
     ProductModule,
     CartModule,
+    OrderModule,
     I18nModule.forRoot({
       fallbackLanguage: 'all',
       loaderOptions: {
@@ -67,13 +69,17 @@ import { CartModule } from 'src/modules/cart/cart.module';
       useClass: TransformInterceptor,
     },
     {
-      provide: APP_FILTER,
-      useClass: HttpExceptionFilter,
+      provide: APP_INTERCEPTOR,
+      useClass: ZodSerializerInterceptor,
     },
     {
       provide: APP_FILTER,
-      useClass: ZodErrorFilter,
+      useClass: HttpExceptionFilter,
     },
+    // {
+    //   provide: APP_FILTER,
+    //   useClass: ZodErrorFilter,
+    // },
   ],
 })
 export class AppModule {}

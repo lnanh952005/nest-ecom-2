@@ -1,19 +1,16 @@
+import { I18nContext } from 'nestjs-i18n';
 import { Injectable } from '@nestjs/common';
 import {
   BrandNotFoundException,
   BrandTranslationAlreadyExistsException,
   BrandTranslationNotFoundException,
 } from 'src/modules/brand/brand.error';
-import {
-  CreateBrandTranslationDtoType,
-  UpdateBrandTranslationDtoType,
-} from 'src/modules/brand/brand.type';
 import { LanguageNotFoundException } from 'src/modules/language/language.error';
 import { BrandRepository } from 'src/modules/share/repositories/brand.repository';
 import { LanguageRepository } from 'src/modules/share/repositories/language.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 import { BrandTranslationRepository } from 'src/modules/share/repositories/brandTranslation.repository';
-import { I18nContext } from 'nestjs-i18n';
+import { CreateBrandTranslationDto, UpdateBrandTranslationDto } from '@brand/dtos/brand.request';
 
 @Injectable()
 export class BrandTranslationService {
@@ -23,7 +20,7 @@ export class BrandTranslationService {
     private BrandTranslationRepository: BrandTranslationRepository,
   ) {}
 
-  async create(data: CreateBrandTranslationDtoType) {
+  async create(data: CreateBrandTranslationDto) {
     await this.brandRepository
       .findById({
         id: data.brandId,
@@ -70,7 +67,7 @@ export class BrandTranslationService {
     data,
   }: {
     id: number;
-    data: UpdateBrandTranslationDtoType;
+    data: UpdateBrandTranslationDto;
   }) {
     await this.brandRepository
       .findById({

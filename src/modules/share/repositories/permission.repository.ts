@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CreatePermissionDtoType,
-  UpdatePermissionDtoType,
-} from 'src/modules/permission/permission.type';
+
 import { PrismaService } from '../services/prisma.service';
+import {
+  CreatePermissionDto,
+  UpdatePermissionDto,
+} from '@permission/dtos/permission.request';
 
 @Injectable()
 export class PermissionRepository {
@@ -33,24 +34,18 @@ export class PermissionRepository {
     };
   }
 
-  async updateById({
-    data,
-    id,
-  }: {
-    id: number;
-    data: UpdatePermissionDtoType;
-  }) {
+  async create(data: CreatePermissionDto) {
+    return await this.prismaService.permission.create({
+      data: { ...data },
+    });
+  }
+
+  async updateById({ data, id }: { id: number; data: UpdatePermissionDto }) {
     return await this.prismaService.permission.update({
       where: { id },
       data: {
         ...data,
       },
-    });
-  }
-
-  async create(data: CreatePermissionDtoType) {
-    return await this.prismaService.permission.create({
-      data: { ...data },
     });
   }
 

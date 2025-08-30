@@ -1,11 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import {
-  CreateUserDtoType,
-  UpdateUserDtoType,
-} from 'src/modules/user/user.type';
+
+import { RegisterDto } from '@auth/dtos/auth.request';
 import { PrismaService } from '../services/prisma.service';
-import { UpdateProfileDtoType } from 'src/modules/profile/profile.type';
-import { RegisterDtoType } from 'src/modules/auth/auth.type';
+import { UpdateProfileDto } from '@profile/dtos/profile.request';
+import { CreateUserDto, UpdateUserDto } from '@user/dtos/user.request';
 
 @Injectable()
 export class UserRepository {
@@ -31,16 +29,20 @@ export class UserRepository {
 
   async findByIdOrEmail({
     unique,
-    includeRole = false,
   }: {
     unique: { email: string } | { id: number };
-    includeRole?: boolean;
   }) {
     return await this.prismaService.user.findUniqueOrThrow({
-      where: {
-        ...unique,
+      where: unique,
+    });
+  }
+
+  getUserDetailById(id: number) {
+    return this.prismaService.user.findUniqueOrThrow({
+      where: { id },
+      include: {
+        role: true,
       },
-      include: includeRole ? { role: true } : {},
     });
   }
 
@@ -60,34 +62,54 @@ export class UserRepository {
     });
   }
 
-  async create(
-    data:
-      | (Omit<RegisterDtoType, 'code'> & { roleId: number })
-      | CreateUserDtoType,
-  ) {
-    return await this.prismaService.user.create({
+  register(data: Omit<RegisterDto, 'code'> & { roleId: number }) {
+    return this.prismaService.user.create({
+      data,
+    });
+  }
+
+  create(data: CreateUserDto) {
+    return this.prismaService.user.create({
+      data,
+    });
+  }
+
+  async updateById({
+    id,
+    data,
+  }: {
+    id: number;
+    data: UpdateUserDto | { totpSecret: string | null } | { password: string };
+  }) {
+    return await this.prismaService.user.update({
+      where: { id },
       data: {
         ...data,
       },
     });
   }
 
-  async updateByIdOrEmail({
-    unique,
+  async updateByEmail({
+    email,
     data,
   }: {
-    unique: { id: number } | { email: string };
-    data:
-      | UpdateUserDtoType
-      | { totpSecret: string | null }
-      | { password: string }
-      | UpdateProfileDtoType;
+    email: string;
+    data: UpdateUserDto | { totpSecret: string | null } | { password: string };
   }) {
     return await this.prismaService.user.update({
-      where: { ...unique },
+      where: { email },
       data: {
         ...data,
       },
+    });
+  }
+
+  updateProfile({ data, id }: { id: number; data: UpdateProfileDto }) {
+    return this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data,
     });
   }
 

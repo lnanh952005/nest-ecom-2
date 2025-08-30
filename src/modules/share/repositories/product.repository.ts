@@ -1,12 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { Injectable } from '@nestjs/common';
-import {
-  CreateProductDtoType,
-  GetProductManagementQueryDtoType,
-  GetProductQueryDtoType,
-  UpdateProductDtoType,
-} from 'src/modules/product/product.type';
 import { PrismaService } from 'src/modules/share/services/prisma.service';
+import { CreateProductDto, GetProductManangementQueryDto, GetProductQueryDto, UpdateProductDto } from '@product/dtos/product.request';
 
 @Injectable()
 export class ProductRepository {
@@ -17,7 +12,7 @@ export class ProductRepository {
     query,
     isPublish,
   }: {
-    query: GetProductManagementQueryDtoType | GetProductQueryDtoType;
+    query: GetProductManangementQueryDto | GetProductQueryDto;
     languageId: string;
     isPublish: boolean | undefined;
   }) {
@@ -75,8 +70,19 @@ export class ProductRepository {
                 in: query.categoryIds,
               },
             },
+            include: {
+              categoryTranslations: {
+                where: languageId == 'all' ? {} : { languageId },
+              },
+            },
           },
-          brand: true,
+          brand: {
+            include: {
+              brandTranslations: {
+                where: languageId == 'all' ? {} : { languageId },
+              },
+            },
+          },
           skus: true,
           variants: {
             include: {
@@ -135,7 +141,7 @@ export class ProductRepository {
     createdBy,
     data,
   }: {
-    data: CreateProductDtoType;
+    data: CreateProductDto;
     createdBy: number;
   }) {
     return await this.prismaService.$transaction(async (tx) => {
@@ -167,6 +173,7 @@ export class ProductRepository {
           },
           createdBy,
           updatedBy: createdBy,
+          userId: createdBy,
         },
       });
 
@@ -205,7 +212,7 @@ export class ProductRepository {
     updatedBy,
   }: {
     id: number;
-    data: UpdateProductDtoType;
+    data: UpdateProductDto;
     updatedBy: number;
   }) {
     const {

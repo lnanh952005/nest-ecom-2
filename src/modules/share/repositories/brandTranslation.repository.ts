@@ -1,15 +1,16 @@
-import { Injectable } from '@nestjs/common';
 import {
-  CreateBrandTranslationDtoType,
-  UpdateBrandTranslationDtoType,
-} from 'src/modules/brand/brand.type';
+  CreateBrandTranslationDto,
+  UpdateBrandTranslationDto,
+} from '@brand/dtos/brand.request';
+import { Injectable } from '@nestjs/common';
+
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
 @Injectable()
 export class BrandTranslationRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async create(data: CreateBrandTranslationDtoType) {
+  async create(data: CreateBrandTranslationDto) {
     return await this.prismaService.brandTranslation.create({
       data,
     });
@@ -37,7 +38,7 @@ export class BrandTranslationRepository {
     id,
   }: {
     id: number;
-    data: UpdateBrandTranslationDtoType;
+    data: UpdateBrandTranslationDto;
   }) {
     return await this.prismaService.brandTranslation.update({
       where: { id },

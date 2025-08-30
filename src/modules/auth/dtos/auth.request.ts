@@ -1,14 +1,15 @@
 import z from 'zod';
 import { VerificationCodeType } from '@prisma/client';
+import { createZodDto } from 'nestjs-zod';
 
-export const registerDto = z.strictObject({
+const registerDto = z.strictObject({
   email: z.string().email(),
   password: z.string().min(6),
   name: z.string(),
   code: z.string().length(6),
 });
 
-export const loginDto = registerDto
+const loginDto = registerDto
   .pick({
     email: true,
     password: true,
@@ -18,26 +19,34 @@ export const loginDto = registerDto
     // code: z.string().length(6).optional(), // otp code
   });
 
-export const refreshTokenDto = z.strictObject({
+const refreshTokenDto = z.strictObject({
   token: z.string(),
 });
 
-export const sendOtpDto = z.strictObject({
+const sendOtpDto = z.strictObject({
   email: z.string().email(),
   type: z.nativeEnum(VerificationCodeType),
 });
 
-export const forgotPasswordDto = z.strictObject({
+const forgotPasswordDto = z.strictObject({
   email: z.string().email(),
   code: z.string(),
   newPassword: z.string().min(6).max(30),
 });
 
-export const disable2FaDto = z.strictObject({
+const disable2FaDto = z.strictObject({
   totpCode: z.string().length(6),
 });
 
-export const reset2FaDto = z.strictObject({
+const reset2FaDto = z.strictObject({
   email: z.string().email(),
   code: z.string().length(6),
 });
+
+export class RegisterDto extends createZodDto(registerDto) {}
+export class LoginDto extends createZodDto(loginDto) {}
+export class RefreshTokenDto extends createZodDto(refreshTokenDto) {}
+export class SendOtpDto extends createZodDto(sendOtpDto) {}
+export class ForgotPasswordDto extends createZodDto(forgotPasswordDto) {}
+export class Disable2FaDto extends createZodDto(disable2FaDto) {}
+export class Reset2FaDto extends createZodDto(reset2FaDto) {}

@@ -3,8 +3,9 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
+import { CreateProductDto, GetProductManangementQueryDto, UpdateProductDto } from '@product/dtos/product.request';
 import { ProductNotFoundException } from '@product/product.error';
-import { CreateProductDtoType, GetProductManagementQueryDtoType, UpdateProductDtoType } from '@product/product.type';
+// import { CreateProductDtoType, GetProductManagementQueryDtoType, UpdateProductDtoType } from '@product/product.type';
 import { ProductRepository } from '@share/repositories/product.repository';
 
 @Injectable()
@@ -31,7 +32,7 @@ export class ProductManagementService {
     roleId,
     userId,
   }: {
-    query: GetProductManagementQueryDtoType;
+    query: GetProductManangementQueryDto;
     languageId: string;
     userId: number;
     roleId: number;
@@ -95,7 +96,7 @@ export class ProductManagementService {
     userId,
     data,
   }: {
-    data: CreateProductDtoType;
+    data: CreateProductDto;
     userId: number;
   }) {
     try {
@@ -112,7 +113,7 @@ export class ProductManagementService {
     roleId,
   }: {
     id: number;
-    data: UpdateProductDtoType;
+    data: UpdateProductDto;
     userId: number;
     roleId: number;
   }) {

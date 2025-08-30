@@ -1,13 +1,10 @@
-import { Injectable } from '@nestjs/common';
 import { RoleEnum } from '@prisma/client';
+import { Injectable } from '@nestjs/common';
 import {
   RoleAlreadyExistedException,
   RoleNotFoundException,
 } from 'src/modules/role/role.error';
-import {
-  CreateRoleDtoType,
-  UpdateRoleDtoType,
-} from 'src/modules/role/role.type';
+import { CreateRoleDto, UpdateRoleDto } from '@role/dtos/role.request';
 import { RoleRepository } from 'src/modules/share/repositories/role.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 
@@ -20,18 +17,16 @@ export class RoleService {
   }
 
   async findById(id: number) {
-    return await this.roleRepository
-      .getDetailById(id)
-      .catch(() => {
-        throw RoleNotFoundException;
-      });
+    return await this.roleRepository.getDetailById(id).catch(() => {
+      throw RoleNotFoundException;
+    });
   }
 
   async findByName(name: RoleEnum) {
     return await this.roleRepository.findByName(name);
   }
 
-  async create(data: CreateRoleDtoType) {
+  async create(data: CreateRoleDto) {
     try {
       return await this.roleRepository.create(data);
     } catch (error) {
@@ -39,7 +34,7 @@ export class RoleService {
     }
   }
 
-  async updateById({ id, data }: { id: number; data: UpdateRoleDtoType }) {
+  async updateById({ id, data }: { id: number; data: UpdateRoleDto }) {
     try {
       const result = await this.roleRepository.updateById({ id, data });
       return {

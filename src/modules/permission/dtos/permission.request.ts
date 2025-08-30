@@ -1,7 +1,9 @@
 import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
+
 import { permissionSchema } from '@share/schemas/auth.schema';
 
-export const createPermissionDto = permissionSchema
+const createPermissionDto = permissionSchema
   .pick({
     name: true,
     path: true,
@@ -13,4 +15,7 @@ export const createPermissionDto = permissionSchema
   })
   .strict();
 
-export const updatePermissionDto = createPermissionDto;
+const updatePermissionDto = createPermissionDto;
+
+export class CreatePermissionDto extends createZodDto(createPermissionDto) {}
+export class UpdatePermissionDto extends createZodDto(updatePermissionDto) {}

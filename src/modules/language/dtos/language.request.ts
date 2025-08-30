@@ -1,12 +1,16 @@
+import { createZodDto } from 'nestjs-zod';
 import { languageSchema } from '@share/schemas/language.schema';
 
-export const createLanguageDto = languageSchema
+const createLanguageDto = languageSchema
   .pick({
     id: true,
     name: true,
   })
   .strict();
 
-export const updateLanguageDto = createLanguageDto.pick({
+const updateLanguageDto = createLanguageDto.pick({
   name: true,
 });
+
+export class CreateLanguageDto extends createZodDto(createLanguageDto) {}
+export class UpdateLanguageDto extends createZodDto(updateLanguageDto) {}

@@ -24,9 +24,11 @@
     "paths": {
       "@auth/*": ["./src/modules/auth/*"],
       "@brand/*": ["./src/modules/brand/*"],
+      "@cart/*": ["./src/modules/cart/*"],
       "@category/*": ["./src/modules/category/*"],
       "@language/*": ["./src/modules/language/*"],
       "@media/*": ["./src/modules/media/*"],
+      "@order/*": ["./src/modules/order/*"],
       "@permission/*": ["./src/modules/permission/*"],
       "@product/*": ["./src/modules/product/*"],
       "@profile/*": ["./src/modules/profile/*"],

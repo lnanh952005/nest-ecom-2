@@ -7,33 +7,22 @@ import {
   Post,
   Put,
   Query,
-  UseInterceptors
 } from '@nestjs/common';
-import { Message } from 'src/decorators/message.decorator';
-import { User } from 'src/decorators/user.decorator';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import { UserNotFoundException } from 'src/modules/auth/auth.error';
-import { AccessTokenPayload } from 'src/modules/auth/auth.type';
-import {
-  createUserDto,
-  updateUserDto,
-} from 'src/modules/user/dtos/user.request';
-import {
-  userListResDto,
-  userResDto,
-} from 'src/modules/user/dtos/user.response';
-import {
-  CreateUserDtoType,
-  UpdateUserDtoType,
-} from 'src/modules/user/user.type';
+import { ZodSerializerDto } from 'nestjs-zod';
 import { UserService } from './user.service';
+import { User } from 'src/decorators/user.decorator';
+import { Message } from 'src/decorators/message.decorator';
+import { AccessTokenPayload } from 'src/modules/auth/auth.type';
+import { UserNotFoundException } from 'src/modules/auth/auth.error';
+import { UserDetailDto, UserListDto } from '@user/dtos/user.response';
+import { CreateUserDto, UpdateUserDto } from '@user/dtos/user.request';
 
 @Controller('users')
 export class UserController {
   constructor(private userSerice: UserService) {}
 
   @Get()
-  @UseInterceptors(new ValidationInterceptor({ serialize: userListResDto }))
+  @ZodSerializerDto(UserListDto)
   async findAll(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '30',
@@ -42,26 +31,21 @@ export class UserController {
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: createUserDto }))
-  async create(
-    @Body() body: CreateUserDtoType,
-    @User('roleId') roleId: number,
-  ) {
+  async create(@Body() body: CreateUserDto, @User('roleId') roleId: number) {
     return await this.userSerice.create({ roleId, data: body });
   }
 
   @Get(':id')
-  @UseInterceptors(new ValidationInterceptor({ serialize: userResDto }))
-  async findById(@Param('id') id: string) {
-    return await this.userSerice.findByIdOrEmail({ id: +id });
+  @ZodSerializerDto(UserDetailDto)
+  async getUserDetailById(@Param('id') id: string) {
+    return await this.userSerice.getUserDetailById(+id);
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updateUserDto }))
   async updateById(
     @Param('id') id: string,
     @User() user: AccessTokenPayload,
-    @Body() body: UpdateUserDtoType,
+    @Body() body: UpdateUserDto,
   ) {
     const { roleId, userId } = user;
     return await this.userSerice.updateById({

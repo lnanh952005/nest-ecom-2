@@ -1,15 +1,19 @@
 import z from 'zod';
-import { cartItemSchema } from '@share/schemas/cartItem.schema';
+import { cartItemSchema } from '@share/schemas/cart.schema';
+import { createZodDto } from 'nestjs-zod';
 
-export const addSkuToCartDto = cartItemSchema
+const addSkuToCartDto = cartItemSchema
   .pick({
     skuId: true,
     quantity: true,
   })
   .strict();
 
-export const updateCartItemDto = addSkuToCartDto;
+const updateCartItemDto = addSkuToCartDto;
 
-export const deleteCartItemDto = z.strictObject({
-  id: z.array(z.number())
-})
+const deleteCartItemDto = z.strictObject({
+  id: z.array(z.number()),
+});
+
+export class AddSkuToCartDto extends createZodDto(addSkuToCartDto){}
+export class UpdateCartItemDto extends createZodDto(updateCartItemDto){}

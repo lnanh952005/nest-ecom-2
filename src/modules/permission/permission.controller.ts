@@ -5,19 +5,18 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseInterceptors
+  Query
 } from '@nestjs/common';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
+
 import {
-  createPermissionDto,
-  updatePermissionDto,
-} from 'src/modules/permission/dtos/permission.request';
-import { permissionListResDto } from 'src/modules/permission/dtos/permission.response';
+  CreatePermissionDto,
+  UpdatePermissionDto,
+} from '@permission/dtos/permission.request';
 import {
-  CreatePermissionDtoType,
-  UpdatePermissionDtoType,
-} from 'src/modules/permission/permission.type';
+  PermissionDetailDto,
+  PermissionListDto,
+} from '@permission/dtos/permission.response';
+import { ZodSerializerDto } from 'nestjs-zod';
 import { PermissionService } from './permission.service';
 
 @Controller('permissions')
@@ -25,14 +24,13 @@ export class PermissionController {
   constructor(private permissionService: PermissionService) {}
 
   @Get(':id')
+  @ZodSerializerDto(PermissionDetailDto)
   async findById(@Param('id') id: string) {
     return await this.permissionService.findById(+id);
   }
 
   @Get()
-  @UseInterceptors(
-    new ValidationInterceptor({ serialize: permissionListResDto }),
-  )
+  @ZodSerializerDto(PermissionListDto)
   async findAll(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
@@ -41,17 +39,12 @@ export class PermissionController {
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: createPermissionDto }))
-  async create(@Body() body: CreatePermissionDtoType) {
+  async create(@Body() body: CreatePermissionDto) {
     return await this.permissionService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updatePermissionDto }))
-  async updateById(
-    @Param('id') id: string,
-    @Body() body: UpdatePermissionDtoType,
-  ) {
+  async updateById(@Param('id') id: string, @Body() body: UpdatePermissionDto) {
     return await this.permissionService.updateById({ id: +id, data: body });
   }
 }

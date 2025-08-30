@@ -1,7 +1,8 @@
 import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
 import { UserStatus } from '@prisma/client';
 
-export const createUserDto = z.strictObject({
+ const createUserDto = z.strictObject({
   email: z.string().email(),
   password: z.string().min(6).max(30),
   name: z.string(),
@@ -11,4 +12,7 @@ export const createUserDto = z.strictObject({
   roleId: z.number(),
 });
 
-export const updateUserDto = createUserDto;
+ const updateUserDto = createUserDto;
+
+ export class CreateUserDto extends createZodDto(createUserDto){}
+ export class UpdateUserDto extends createZodDto(updateUserDto){}

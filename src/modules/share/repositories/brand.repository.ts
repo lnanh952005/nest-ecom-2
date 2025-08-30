@@ -1,8 +1,5 @@
+import { CreateBrandDto, UpdateBrandDto } from '@brand/dtos/brand.request';
 import { Injectable } from '@nestjs/common';
-import {
-  CreateBrandDtoType,
-  UpdateBrandDtoType,
-} from 'src/modules/brand/brand.type';
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
 @Injectable()
@@ -50,13 +47,13 @@ export class BrandRepository {
     };
   }
 
-  async create(data: CreateBrandDtoType) {
+  async create(data: CreateBrandDto) {
     return await this.prismaService.brand.create({
       data: data,
     });
   }
 
-  async updateById({ data, id }: { id: number; data: UpdateBrandDtoType }) {
+  async updateById({ data, id }: { id: number; data: UpdateBrandDto }) {
     return await this.prismaService.brand.update({
       where: { id },
       data,

@@ -3,15 +3,16 @@ import {
   ProductTranslationAlreadyExistsException,
   ProductTranslationNotFoundException,
 } from 'src/modules/product/product.error';
-import {
-  CreateProductTranslationDtoType,
-  UpdateProductTranslationDtoType,
-} from 'src/modules/product/product.type';
+
 import {
   isUniqueConstraintPrismaError,
   RecordNotFoundException,
 } from 'src/modules/share/utils/prismaError.util';
 import { ProductTranslationRepository } from 'src/modules/share/repositories/productTranslation.repository';
+import {
+  CreateProductTranslationDto,
+  UpdateProductTranslationDto,
+} from '@product/dtos/product.request';
 
 @Injectable()
 export class ProductTranslationService {
@@ -32,7 +33,7 @@ export class ProductTranslationService {
     }
   }
 
-  async create(data: CreateProductTranslationDtoType) {
+  async create(data: CreateProductTranslationDto) {
     try {
       return this.productTranslationRepository.create(data);
     } catch (error) {
@@ -48,7 +49,7 @@ export class ProductTranslationService {
     id,
   }: {
     id: number;
-    data: UpdateProductTranslationDtoType;
+    data: UpdateProductTranslationDto;
   }) {
     try {
       return this.productTranslationRepository.updateById({ id, data });

@@ -7,16 +7,13 @@ import {
   Param,
   Post,
   Put,
-  UseInterceptors,
 } from '@nestjs/common';
-import { Message } from 'src/decorators/message.decorator';
 import { LanguageService } from './language.service';
+import { Message } from 'src/decorators/message.decorator';
 import {
-  CreateLanguageDtoType,
-  UpdateLanguageDtoType,
-} from '@language/language.type';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import { createLanguageDto, updateLanguageDto } from '@language/dtos/language.request';
+  CreateLanguageDto,
+  UpdateLanguageDto,
+} from '@language/dtos/language.request';
 
 @Controller('languages')
 export class LanguageController {
@@ -33,17 +30,12 @@ export class LanguageController {
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: createLanguageDto }))
-  async create(@Body() body: CreateLanguageDtoType) {
+  async create(@Body() body: CreateLanguageDto) {
     return await this.languageService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updateLanguageDto }))
-  async updateById(
-    @Param('id') id: string,
-    @Body() body: UpdateLanguageDtoType,
-  ) {
+  async updateById(@Param('id') id: string, @Body() body: UpdateLanguageDto) {
     return await this.languageService.updateById({ id, data: body });
   }
 

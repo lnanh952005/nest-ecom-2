@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { GetProductQueryDto } from '@product/dtos/product.request';
 
-import { GetProductQueryDtoType } from 'src/modules/product/product.type';
+// import { GetProductQueryDtoType } from 'src/modules/product/product.type';
 import { ProductNotFoundException } from 'src/modules/product/product.error';
 import { ProductRepository } from 'src/modules/share/repositories/product.repository';
 
@@ -12,7 +13,7 @@ export class ProductService {
     languageId,
     query,
   }: {
-    query: GetProductQueryDtoType;
+    query: GetProductQueryDto;
     languageId: string;
   }) {
     const { items, totalItems } = await this.productRepository.findAll({

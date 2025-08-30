@@ -7,7 +7,7 @@ import { PrismaClient, RoleEnum } from '@prisma/client';
 import { AppModule } from 'src/app.module';
 import { createVnPhone } from '@share/utils/helper.util';
 
-const CLIENT_MODULE = ['auth', 'media', 'profile', 'cart'];
+const CLIENT_MODULE = ['auth', 'media', 'profile', 'cart', 'orders'];
 const SELLER_MODULE = [
   'auth',
   'media',
@@ -15,6 +15,7 @@ const SELLER_MODULE = [
   'product-translations',
   'profile',
   'cart',
+  'orders',
 ];
 
 const main = async () => {
@@ -179,9 +180,22 @@ const main = async () => {
   });
 
   for (let i = 1; i <= 2000; i++) {
+    const sizes = ['S', 'M', 'L', 'XL'];
+    const colors = ['Red', 'Blue', 'Black'];
+
+    // generate sku data
+    const skuData = sizes.flatMap((size) =>
+      colors.map((color) => ({
+        value: `${size}-${color}`,
+        price: crypto.randomInt(100000, 1000000),
+        stock: crypto.randomInt(0, 500),
+        image: faker.image.urlLoremFlickr({ category: 'product' }),
+      })),
+    );
     const createdById = crypto.randomInt(1, 7);
     await prismaService.product.create({
       data: {
+        userId: createdById,
         name: faker.commerce.productName(),
         basePrice: crypto.randomInt(9999999),
         virtualPrice: crypto.randomInt(10000000, 50000000),
@@ -195,13 +209,16 @@ const main = async () => {
         ]),
         createdBy: createdById,
         updatedBy: createdById,
-        brand: {
-          connect: brands[crypto.randomInt(brands.length)],
-        },
+        brandId: brands[crypto.randomInt(brands.length)].id,
         categories: {
           connect: new Array(100)
             .fill(0)
             .map((e) => ({ id: crypto.randomInt(1, 101) })),
+        },
+        skus: {
+          createMany: {
+            data: skuData,
+          },
         },
       },
     });

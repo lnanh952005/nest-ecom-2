@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import {
-  CreateProductTranslationDtoType,
-  UpdateProductTranslationDtoType,
-} from 'src/modules/product/product.type';
+  CreateProductTranslationDto,
+  UpdateProductTranslationDto,
+} from '@product/dtos/product.request';
+
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
 @Injectable()
@@ -27,19 +28,13 @@ export class ProductTranslationRepository {
     });
   }
 
-  create(data: CreateProductTranslationDtoType) {
+  create(data: CreateProductTranslationDto) {
     return this.prismaService.productTranslation.create({
       data,
     });
   }
 
-  updateById({
-    data,
-    id,
-  }: {
-    id: number;
-    data: UpdateProductTranslationDtoType;
-  }) {
+  updateById({ data, id }: { id: number; data: UpdateProductTranslationDto }) {
     return this.prismaService.productTranslation.update({
       where: { id },
       data,

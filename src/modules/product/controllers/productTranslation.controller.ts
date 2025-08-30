@@ -5,19 +5,13 @@ import {
   Get,
   Param,
   Post,
-  Put,
-  UseInterceptors,
+  Put
 } from '@nestjs/common';
+import {
+  CreateProductTranslationDto,
+  UpdateProductTranslationDto,
+} from '@product/dtos/product.request';
 import { Message } from 'src/decorators/message.decorator';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  createProductTranslationDto,
-  updateProductTranslationDto,
-} from 'src/modules/product/dtos/product.request';
-import {
-  CreateProductTranslationDtoType,
-  UpdateProductTranslationDtoType,
-} from 'src/modules/product/product.type';
 import { ProductTranslationService } from 'src/modules/product/services/productTranslation.service';
 
 @Controller('product-translations')
@@ -27,20 +21,14 @@ export class ProductTranslationController {
   async findAll() {}
 
   @Post()
-  @UseInterceptors(
-    new ValidationInterceptor({ validate: createProductTranslationDto }),
-  )
-  async create(@Body() body: CreateProductTranslationDtoType) {
+  async create(@Body() body: CreateProductTranslationDto) {
     return this.productTranslationService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(
-    new ValidationInterceptor({ validate: updateProductTranslationDto }),
-  )
   async updateById(
     @Param('id') id: string,
-    @Body() body: UpdateProductTranslationDtoType,
+    @Body() body: UpdateProductTranslationDto,
   ) {
     return await this.productTranslationService.updateById({
       id: +id,

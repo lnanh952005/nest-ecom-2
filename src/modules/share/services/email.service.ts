@@ -14,7 +14,7 @@ import {
   EmailNotFoundException,
   InvalidOTPException,
 } from '../../auth/auth.error';
-import { SendOtpDtoType } from '../../auth/auth.type';
+import { SendOtpDto } from '@auth/dtos/auth.request';
 
 @Injectable()
 export class EmailService {
@@ -27,7 +27,7 @@ export class EmailService {
     this.resend = new Resend(this.envService.RESEND_API_KEY);
   }
 
-  async sendOtpCode({ email, type }: SendOtpDtoType) {
+  async sendOtpCode({ email, type }: SendOtpDto) {
     const isEmail = await this.userRepository.findByIdOrEmail({
       unique: { email },
     });

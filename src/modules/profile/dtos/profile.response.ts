@@ -1,8 +1,11 @@
 import { userSchema } from '@share/schemas/user.schema';
+import { createZodDto } from 'nestjs-zod';
 
-export const profileResDto = userSchema.omit({
+const profileDto = userSchema.omit({
   password: true,
   totpSecret: true,
   createdAt: true,
   updatedAt: true,
 });
+
+export class ProfileDto extends createZodDto(profileDto) {}

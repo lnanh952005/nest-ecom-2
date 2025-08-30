@@ -1,4 +1,8 @@
 import {
+  CreateBrandTranslationDto,
+  UpdateBrandTranslationDto,
+} from '@brand/dtos/brand.request';
+import {
   Body,
   Controller,
   Delete,
@@ -10,14 +14,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  CreateBrandTranslationDtoType,
-  UpdateBrandTranslationDtoType,
-} from 'src/modules/brand/brand.type';
-import {
-  createBrandTranslationDto,
-  updateBrandTranslationDto,
-} from 'src/modules/brand/dtos/brand.request';
+
 import { BrandTranslationService } from 'src/modules/brand/services/brandTranslation.service';
 
 @Controller('brand-translations')
@@ -38,20 +35,14 @@ export class BrandTranslationController {
   }
 
   @Post()
-  @UseInterceptors(
-    new ValidationInterceptor({ validate: createBrandTranslationDto }),
-  )
-  async create(@Body() body: CreateBrandTranslationDtoType) {
+  async create(@Body() body: CreateBrandTranslationDto) {
     return await this.brandTranslationService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(
-    new ValidationInterceptor({ validate: updateBrandTranslationDto }),
-  )
   async updateById(
     @Param('id') id: string,
-    @Body() body: UpdateBrandTranslationDtoType,
+    @Body() body: UpdateBrandTranslationDto,
   ) {
     return await this.brandTranslationService.updateById({
       id: +id,

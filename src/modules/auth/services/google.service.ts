@@ -75,6 +75,8 @@ export class GoogleService {
           password: this.passwordEncoderSerivice.randomPassword(),
           roleId: clientRole.id,
           avatar: data.picture || 'unknown',
+          status: 'ACTIVE',
+          phoneNumber: null,
         });
       }
 

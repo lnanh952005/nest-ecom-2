@@ -1,17 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma, RoleEnum, User } from '@prisma/client';
-
-import {
-  CreateRoleDtoType,
-  UpdateRoleDtoType,
-} from 'src/modules/role/role.type';
+import { RoleEnum } from '@prisma/client';
+import { CreateRoleDto, UpdateRoleDto } from '@role/dtos/role.request';
 import { PrismaService } from 'src/modules/share/services/prisma.service';
 
 @Injectable()
 export class RoleRepository {
   constructor(private prismaService: PrismaService) {}
 
-  async create(data: CreateRoleDtoType) {
+  async create(data: CreateRoleDto) {
     return await this.prismaService.role.create({
       data,
     });
@@ -55,7 +51,7 @@ export class RoleRepository {
     });
   }
 
-  async updateById({ id, data }: { id: number; data: UpdateRoleDtoType }) {
+  async updateById({ id, data }: { id: number; data: UpdateRoleDto }) {
     return await this.prismaService.$transaction(async (tx) => {
       const permission = await this.prismaService.permission.findMany({
         where: {

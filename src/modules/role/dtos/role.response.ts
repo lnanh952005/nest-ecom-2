@@ -1,7 +1,8 @@
-import { permissionSchema, roleSchema } from '@share/schemas/auth.schema';
 import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
+import { permissionSchema, roleSchema } from '@share/schemas/auth.schema';
 
-export const roleResDto = roleSchema.extend({
+const roleDetailDto = roleSchema.extend({
   permissions: z.array(
     permissionSchema.omit({
       createdAt: true,
@@ -10,8 +11,11 @@ export const roleResDto = roleSchema.extend({
   ),
 });
 
-export const roleListResDto = z.array(
-  roleResDto.omit({
+const roleListDto = z.array(
+  roleDetailDto.omit({
     permissions: true,
   }),
 );
+
+export class RoleDetailDto extends createZodDto(roleDetailDto) {}
+export class RoleListDto extends createZodDto(roleListDto) {}

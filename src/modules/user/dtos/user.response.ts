@@ -1,8 +1,9 @@
 import z from 'zod';
-import { paginationSchema, roleSchema } from '@share/schemas/auth.schema';
 import { userSchema } from '@share/schemas/user.schema';
+import { paginationSchema, roleSchema } from '@share/schemas/auth.schema';
+import { createZodDto } from 'nestjs-zod';
 
-export const userResDto = userSchema
+const userDetailDto = userSchema
   .omit({
     password: true,
   })
@@ -13,11 +14,14 @@ export const userResDto = userSchema
     }),
   });
 
-export const userListResDto = paginationSchema.extend({
+const userListDto = paginationSchema.extend({
   items: z.array(
-    userResDto.omit({
+    userDetailDto.omit({
       createdAt: true,
       updatedAt: true,
     }),
   ),
 });
+
+export class UserDetailDto extends createZodDto(userDetailDto) {}
+export class UserListDto extends createZodDto(userListDto) {}

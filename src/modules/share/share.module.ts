@@ -20,6 +20,7 @@ import { CategoryRepository } from 'src/modules/share/repositories/category.repo
 import { CategoryTranslationRepository } from 'src/modules/share/repositories/categoryTranslation.repository';
 import { CartRepository } from '@share/repositories/cartItem.repository';
 import { SkuRepository } from '@share/repositories/sku.repository';
+import { OrderRepository } from '@share/repositories/order.repository';
 
 const Service = [
   PrismaService,
@@ -43,6 +44,7 @@ const Repository = [
   CategoryTranslationRepository,
   CartRepository,
   SkuRepository,
+  OrderRepository
 ];
 
 @Global()

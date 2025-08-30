@@ -1,4 +1,8 @@
 import {
+  CreateCategoryTranslationDto,
+  UpdateCategoryTranslationDto,
+} from '@category/dtos/category.request';
+import {
   Body,
   Controller,
   Delete,
@@ -6,19 +10,12 @@ import {
   Param,
   Post,
   Put,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 import { Message } from 'src/decorators/message.decorator';
 import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  CreateCategoryTranslationDtoType,
-  UpdateCategoryTranslationDtoType,
-} from 'src/modules/category/category.type';
-import {
-  createCategoryTranslationDto,
-  updateCategoryTranslationDto,
-} from 'src/modules/category/dtos/category.request';
+
 import { CategoryTranslationService } from 'src/modules/category/services/categoryTranslation.service';
 
 @Controller('category-translations')
@@ -37,21 +34,14 @@ export class CategoryTranslationController {
     return await this.categoryTranslationService.findById(+id);
   }
 
-  @Post()
-  @UseInterceptors(
-    new ValidationInterceptor({ validate: createCategoryTranslationDto }),
-  )
-  async create(@Body() body: CreateCategoryTranslationDtoType) {
+  async create(@Body() body: CreateCategoryTranslationDto) {
     return await this.categoryTranslationService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(
-    new ValidationInterceptor({ validate: updateCategoryTranslationDto }),
-  )
   async updateById(
     @Param('id') id: string,
-    @Body() body: UpdateCategoryTranslationDtoType,
+    @Body() body: UpdateCategoryTranslationDto,
   ) {
     return await this.categoryTranslationService.updateById({
       id: +id,

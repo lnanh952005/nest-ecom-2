@@ -1,20 +1,19 @@
 import z from 'zod';
-import crypto from 'crypto';
 import {
   productTranslationSchema,
   skuShema,
 } from '@share/schemas/product.schema';
+import { generateSkus } from '@share/utils/generateSku';
+import { createZodDto } from 'nestjs-zod';
 
-export const upsertSkuDto = skuShema.pick({
+const upsertSkuDto = skuShema.pick({
   value: true,
   price: true,
   stock: true,
   image: true,
 });
 
-export const productTranslationResDto = productTranslationSchema;
-
-export const createProductDto = z
+const createProductDto = z
   .strictObject({
     name: z.string(),
     basePrice: z.number().min(0),
@@ -53,9 +52,9 @@ export const createProductDto = z
     }
   });
 
-export const updateProductDto = createProductDto;
+const updateProductDto = createProductDto;
 
-export const createProductTranslationDto = productTranslationSchema
+const createProductTranslationDto = productTranslationSchema
   .pick({
     productId: true,
     languageId: true,
@@ -64,12 +63,12 @@ export const createProductTranslationDto = productTranslationSchema
   })
   .strict();
 
-export const updateProductTranslationDto = createProductTranslationDto;
+const updateProductTranslationDto = createProductTranslationDto;
 
 /**
  * dành cho client và guest
  */
-export const getProductQueryDto = z.object({
+const getProductQueryDto = z.object({
   page: z.coerce.number().default(1),
   limit: z.coerce.number().default(10),
   name: z.string().optional(),
@@ -95,7 +94,7 @@ export const getProductQueryDto = z.object({
 /**
  * danh cho admin va seller
  */
-export const getProductManagementQueryDto = getProductQueryDto.extend({
+const getProductManagementQueryDto = getProductQueryDto.extend({
   isPublish: z
     .string()
     .transform((vla, ctx) => {
@@ -105,24 +104,19 @@ export const getProductManagementQueryDto = getProductQueryDto.extend({
   createdBy: z.coerce.number(),
 });
 
-export function generateSkus(variants: { name: string; options: string[] }[]) {
-  return variants
-    .reduce<string[][]>(
-      (acc, variant) => {
-        const result: string[][] = [];
-        acc.forEach((combination) => {
-          variant.options.forEach((option) => {
-            result.push([...combination, option.toUpperCase()]);
-          });
-        });
-        return result;
-      },
-      [[]],
-    )
-    .map((combo) => ({
-      value: combo.join('-'),
-      price: crypto.randomInt(10000, 10000000),
-      stock: crypto.randomInt(0, 10000),
-      image: 'https://',
-    }));
-}
+export class GetProductQueryDto extends createZodDto(getProductQueryDto) {}
+
+export class GetProductManangementQueryDto extends createZodDto(
+  getProductManagementQueryDto,
+) {}
+
+export class CreateProductDto extends createZodDto(createProductDto) {}
+export class UpdateProductDto extends createZodDto(updateProductDto) {}
+
+export class CreateProductTranslationDto extends createZodDto(
+  createProductTranslationDto,
+) {}
+
+export class UpdateProductTranslationDto extends createZodDto(
+  updateProductTranslationDto,
+) {}

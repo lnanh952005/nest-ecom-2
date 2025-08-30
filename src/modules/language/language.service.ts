@@ -4,13 +4,16 @@ import {
   LanguageExistedException,
   LanguageNotFoundException,
 } from './language.error';
-import { CreateLanguageDtoType, UpdateLanguageDtoType } from '@language/language.type';
+import {
+  CreateLanguageDto,
+  UpdateLanguageDto,
+} from '@language/dtos/language.request';
 
 @Injectable()
 export class LanguageService {
   constructor(private languageRepository: LanguageRepository) {}
 
-  async create({ id, name }: CreateLanguageDtoType) {
+  async create({ id, name }: CreateLanguageDto) {
     try {
       return await this.languageRepository.create({ id, name });
     } catch (error) {
@@ -30,7 +33,7 @@ export class LanguageService {
     }
   }
 
-  async updateById({ id, data }: { id: string; data: UpdateLanguageDtoType }) {
+  async updateById({ id, data }: { id: string; data: UpdateLanguageDto }) {
     try {
       return await this.languageRepository.updateById({ id, data });
     } catch (error) {

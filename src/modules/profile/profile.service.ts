@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { EmailNotFoundException } from 'src/modules/auth/auth.error';
+import {
+  ChangePasswordDto,
+  UpdateProfileDto,
+} from '@profile/dtos/profile.request';
 import {
   PasswordIsIncorrectException,
   PhoneNumberAlreadyExistsException,
 } from 'src/modules/profile/profile.error';
-import {
-  ChangePasswordDtoType,
-  UpdateProfileDtoType,
-} from 'src/modules/profile/profile.type';
+import { EmailNotFoundException } from 'src/modules/auth/auth.error';
 import { UserRepository } from 'src/modules/share/repositories/user.repository';
 import { PasswordEncoderService } from 'src/modules/share/services/passwordEncoder.service';
 
@@ -22,13 +22,7 @@ export class ProfileService {
     return await this.userRepository.findByIdOrEmail({ unique: { id } });
   }
 
-  async changePassword({
-    data,
-    id,
-  }: {
-    id: number;
-    data: ChangePasswordDtoType;
-  }) {
+  async changePassword({ data, id }: { id: number; data: ChangePasswordDto }) {
     const user = await this.userRepository.findByIdOrEmail({ unique: { id } });
     if (!user) {
       throw EmailNotFoundException;
@@ -43,27 +37,19 @@ export class ProfileService {
       throw PasswordIsIncorrectException;
     }
 
-    return await this.userRepository.updateByIdOrEmail({
-      unique: { id: user.id },
+    return await this.userRepository.updateById({
+      id: user.id,
       data: {
         password: await this.passwordEncoderService.hash(data.newPassword),
       },
     });
   }
 
-  async updateProfile({
-    data,
-    id,
-  }: {
-    id: number;
-    data: UpdateProfileDtoType;
-  }) {
+  async updateProfile({ data, id }: { id: number; data: UpdateProfileDto }) {
     try {
-      return await this.userRepository.updateByIdOrEmail({
-        unique: { id },
-        data: {
-          ...data,
-        },
+      return await this.userRepository.updateProfile({
+        id,
+        data,
       });
     } catch (error) {
       throw PhoneNumberAlreadyExistsException;

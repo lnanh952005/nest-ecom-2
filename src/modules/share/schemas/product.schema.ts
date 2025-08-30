@@ -32,3 +32,17 @@ export const skuShema = z.object({
   createdAt: z.date(),
   updatedAt: z.date(),
 });
+
+export const productSkuSnapshotSchema = z.object({
+  id: z.number(),
+  productName: z.string(),
+  skuPrice: z.number(),
+  image: z.string(),
+  skuValue: z.string(),
+  quantity: z.number(),
+  skuId: z.number(),
+  productId: z.number(),
+  orderId: z.number(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
+});

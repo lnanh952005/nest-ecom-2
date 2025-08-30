@@ -10,24 +10,23 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
-import { Message } from 'src/decorators/message.decorator';
 import { User } from 'src/decorators/user.decorator';
+import { Message } from 'src/decorators/message.decorator';
+import { CartService } from 'src/modules/cart/cart.service';
 import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 import {
-  AddSkuToCartDtoType,
-  UpdateCartItemDtoType,
-} from 'src/modules/cart/card.type';
-import { CartService } from 'src/modules/cart/cart.service';
-import {
-  addSkuToCartDto,
-  updateCartItemDto,
+  AddSkuToCartDto,
+  UpdateCartItemDto,
 } from 'src/modules/cart/dtos/cart.request';
+import { ZodSerializerDto } from 'nestjs-zod';
+import { CartListDto } from 'src/modules/cart/dtos/cart.response';
 
 @Controller('cart')
 export class CartController {
   constructor(private cartItemService: CartService) {}
 
   @Get()
+  @ZodSerializerDto(CartListDto)
   async getCart(
     @Query('page') page = '1',
     @Query('limit') limit = '30',
@@ -42,25 +41,20 @@ export class CartController {
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: addSkuToCartDto }))
   async addToCart(
-    @Body() body: AddSkuToCartDtoType,
+    @Body() body: AddSkuToCartDto,
     @User('userId') userId: number,
   ) {
     return await this.cartItemService.addToCart({ data: body, userId });
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updateCartItemDto }))
-  async updateById(
-    @Param('id') id: string,
-    @Body() body: UpdateCartItemDtoType,
-  ) {
+  async updateById(@Param('id') id: string, @Body() body: UpdateCartItemDto) {
     return this.cartItemService.updateById({ data: body, id: +id });
   }
 
   @Delete(':ids')
-  @Message("delete successfully")
+  @Message('delete successfully')
   async deleteById(@Param('ids') ids: string, @User('userId') userId: number) {
     await this.cartItemService.deleteById({
       ids: ids.split(',').map((e) => +e),

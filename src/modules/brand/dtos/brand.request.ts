@@ -2,17 +2,18 @@ import {
   brandSchema,
   brandTranslationSchema,
 } from '@share/schemas/brand.schema';
+import { createZodDto } from 'nestjs-zod';
 
-export const createBrandDto = brandSchema
+const createBrandDto = brandSchema
   .pick({
     name: true,
     logo: true,
   })
   .strict();
 
-export const updateBrandDto = createBrandDto;
+const updateBrandDto = createBrandDto;
 
-export const createBrandTranslationDto = brandTranslationSchema
+const createBrandTranslationDto = brandTranslationSchema
   .pick({
     brandId: true,
     languageId: true,
@@ -20,4 +21,13 @@ export const createBrandTranslationDto = brandTranslationSchema
   })
   .strict();
 
-export const updateBrandTranslationDto = createBrandTranslationDto;
+const updateBrandTranslationDto = createBrandTranslationDto;
+
+export class CreateBrandDto extends createZodDto(createBrandDto) {}
+export class UpdateBrandDto extends createZodDto(updateBrandDto) {}
+export class CreateBrandTranslationDto extends createZodDto(
+  createBrandTranslationDto,
+) {}
+export class UpdateBrandTranslationDto extends createZodDto(
+  updateBrandTranslationDto,
+) {}

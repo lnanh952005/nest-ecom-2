@@ -1,4 +1,12 @@
 import {
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from '@category/dtos/category.request';
+import {
+  CategoryDetailDto,
+  CategoryListDto,
+} from '@category/dtos/category.response';
+import {
   Body,
   Controller,
   Delete,
@@ -6,25 +14,14 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseInterceptors
+  Query
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
-import { Message } from 'src/decorators/message.decorator';
+import { ZodSerializerDto } from 'nestjs-zod';
+
 import { Public } from 'src/decorators/public.decorator';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  CreateCategoryDtoType,
-  UpdateCategoryDtoType,
-} from 'src/modules/category/category.type';
-import {
-  createCategoryDto,
-  updateCategoryDto,
-} from 'src/modules/category/dtos/category.request';
-import {
-  categoryListResDto,
-  categoryResDto,
-} from 'src/modules/category/dtos/category.response';
+import { Message } from 'src/decorators/message.decorator';
+
 import { CategoryService } from 'src/modules/category/services/category.service';
 
 @Controller('categories')
@@ -33,18 +30,17 @@ export class CategoryController {
 
   @Get()
   @Public()
-  @UseInterceptors(new ValidationInterceptor({ serialize: categoryListResDto }))
+  @ZodSerializerDto(CategoryListDto)
   async findAll(@Query('parentCategoryId') parentCategoryId: string) {
-
     return await this.categoryService.findAll({
       parentCategoryId: +parentCategoryId || undefined,
-      languageId: I18nContext.current()?.lang as string
+      languageId: I18nContext.current()?.lang as string,
     });
   }
 
   @Get(':id')
   @Public()
-  @UseInterceptors(new ValidationInterceptor({ serialize: categoryResDto }))
+  @ZodSerializerDto(CategoryDetailDto)
   async findById(@Param('id') id: string) {
     return await this.categoryService.findById({
       id: +id,
@@ -53,17 +49,12 @@ export class CategoryController {
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: createCategoryDto }))
-  async create(@Body() body: CreateCategoryDtoType) {
+  async create(@Body() body: CreateCategoryDto) {
     return await this.categoryService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updateCategoryDto }))
-  async updateById(
-    @Param('id') id: string,
-    @Body() body: UpdateCategoryDtoType,
-  ) {
+  async updateById(@Param('id') id: string, @Body() body: UpdateCategoryDto) {
     return await this.categoryService.updateById({ id: +id, data: body });
   }
 

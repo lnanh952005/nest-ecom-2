@@ -1,15 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
-import { PermissionRepository } from '../share/repositories/permission.repository';
-import { PaginationType } from '../share/types';
 import {
   PermissionAlreadyExistedException,
   PermissionNotFoundException,
 } from './permission.error';
 import {
-  CreatePermissionDtoType,
-  UpdatePermissionDtoType,
-} from 'src/modules/permission/permission.type';
+  CreatePermissionDto,
+  UpdatePermissionDto,
+} from '@permission/dtos/permission.request';
+import { PermissionRepository } from '../share/repositories/permission.repository';
+import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 
 @Injectable()
 export class PermissionService {
@@ -27,7 +26,7 @@ export class PermissionService {
     return await this.permissionRepository.findAll(data);
   }
 
-  async create(data: CreatePermissionDtoType) {
+  async create(data: CreatePermissionDto) {
     try {
       return await this.permissionRepository.create({
         ...data,
@@ -37,13 +36,7 @@ export class PermissionService {
     }
   }
 
-  async updateById({
-    data,
-    id,
-  }: {
-    id: number;
-    data: UpdatePermissionDtoType;
-  }) {
+  async updateById({ data, id }: { id: number; data: UpdatePermissionDto }) {
     try {
       return await this.permissionRepository.updateById({ id, data });
     } catch (error) {

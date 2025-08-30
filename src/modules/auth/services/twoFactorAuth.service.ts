@@ -12,7 +12,7 @@ import {
 import { EnvService } from 'src/modules/share/services/env.service';
 import { UserRepository } from 'src/modules/share/repositories/user.repository';
 import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
-import { Disable2FaDtoType, Reset2FaDtoType } from '../auth.type';
+import { Disable2FaDto, Reset2FaDto } from '@auth/dtos/auth.request';
 
 @Injectable()
 export class TwoFactorAuthService {
@@ -44,8 +44,8 @@ export class TwoFactorAuthService {
     const totp = this.createTOTP({ email: user.email });
     const secret = totp.secret.base32;
     const uri = totp.toString();
-    await this.userRepository.updateByIdOrEmail({
-      unique: { id: user.id },
+    await this.userRepository.updateById({
+      id: user.id,
       data: { totpSecret: secret },
     });
     return {
@@ -54,7 +54,7 @@ export class TwoFactorAuthService {
     };
   }
 
-  async disable2FA({ id, data }: { id: number; data: Disable2FaDtoType }) {
+  async disable2FA({ id, data }: { id: number; data: Disable2FaDto }) {
     const user = await this.userRepository.findByIdOrEmail({ unique: { id } });
     if (!user) {
       throw UserNotFoundException;
@@ -70,15 +70,15 @@ export class TwoFactorAuthService {
     if (!isValid) {
       throw InvalidTOTPException;
     }
-    await this.userRepository.updateByIdOrEmail({
-      unique: { id },
+    await this.userRepository.updateById({
+      id,
       data: {
         totpSecret: null,
       },
     });
   }
 
-  async reset2Fa({ code, email }: Reset2FaDtoType) {
+  async reset2Fa({ code, email }: Reset2FaDto) {
     const user = await this.userRepository.findByIdOrEmail({
       unique: { email },
     });
@@ -101,8 +101,8 @@ export class TwoFactorAuthService {
     const secret = totp.secret.base32;
     const uri = totp.toString();
     await Promise.all([
-      this.userRepository.updateByIdOrEmail({
-        unique: { id: user.id },
+      this.userRepository.updateById({
+        id: user.id,
         data: {
           totpSecret: secret,
         },

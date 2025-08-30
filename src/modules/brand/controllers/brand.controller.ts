@@ -6,25 +6,15 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseInterceptors,
+  Query
 } from '@nestjs/common';
-import { Message } from 'src/decorators/message.decorator';
+import { ZodSerializerDto } from 'nestjs-zod';
+
 import { Public } from 'src/decorators/public.decorator';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  CreateBrandDtoType,
-  UpdateBrandDtoType,
-} from 'src/modules/brand/brand.type';
-import {
-  createBrandDto,
-  updateBrandDto,
-} from 'src/modules/brand/dtos/brand.request';
-import {
-  brandListResDto,
-  brandResDto,
-} from 'src/modules/brand/dtos/brand.response';
+import { Message } from 'src/decorators/message.decorator';
 import { BrandService } from 'src/modules/brand/services/brand.service';
+import { BrandDetailDto, BrandListDto } from '@brand/dtos/brand.response';
+import { CreateBrandDto, UpdateBrandDto } from '@brand/dtos/brand.request';
 
 @Controller('brands')
 export class BrandController {
@@ -32,7 +22,7 @@ export class BrandController {
 
   @Get()
   @Public()
-  @UseInterceptors(new ValidationInterceptor({ serialize: brandListResDto }))
+  @ZodSerializerDto(BrandListDto)
   async findAll(
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10',
@@ -42,20 +32,18 @@ export class BrandController {
 
   @Get(':id')
   @Public()
-  @UseInterceptors(new ValidationInterceptor({ serialize: brandResDto }))
+  @ZodSerializerDto(BrandDetailDto)
   async findById(@Param('id') id: string) {
     return await this.brandService.findById(+id);
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: createBrandDto }))
-  async create(@Body() body: CreateBrandDtoType) {
+  async create(@Body() body: CreateBrandDto) {
     return await this.brandService.create(body);
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updateBrandDto }))
-  async updateById(@Param('id') id: string, @Body() body: UpdateBrandDtoType) {
+  async updateById(@Param('id') id: string, @Body() body: UpdateBrandDto) {
     return await this.brandService.updateById({ id: +id, data: body });
   }
 

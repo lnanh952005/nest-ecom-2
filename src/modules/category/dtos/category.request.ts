@@ -2,12 +2,13 @@ import {
   categorySchema,
   categoryTranslationSchema,
 } from '@share/schemas/category.schema';
+import { createZodDto } from 'nestjs-zod';
 
 // const getParentCategoryIdQueryDto = z.strictObject({
 //   parentCategoryId: z.number().optional(),
 // });
 
-export const createCategoryDto = categorySchema
+const createCategoryDto = categorySchema
   .pick({
     parentCategoryId: true,
     name: true,
@@ -15,9 +16,9 @@ export const createCategoryDto = categorySchema
   })
   .strict();
 
-export const updateCategoryDto = createCategoryDto;
+const updateCategoryDto = createCategoryDto;
 
-export const createCategoryTranslationDto = categoryTranslationSchema
+const createCategoryTranslationDto = categoryTranslationSchema
   .pick({
     categoryId: true,
     languageId: true,
@@ -26,4 +27,14 @@ export const createCategoryTranslationDto = categoryTranslationSchema
   })
   .strict();
 
-export const updateCategoryTranslationDto = createCategoryTranslationDto;
+const updateCategoryTranslationDto = createCategoryTranslationDto;
+
+export class CreateCategoryDto extends createZodDto(createCategoryDto) {}
+export class UpdateCategoryDto extends createZodDto(updateCategoryDto) {}
+
+export class CreateCategoryTranslationDto extends createZodDto(
+  createCategoryTranslationDto,
+) {}
+export class UpdateCategoryTranslationDto extends createZodDto(
+  updateCategoryTranslationDto,
+) {}

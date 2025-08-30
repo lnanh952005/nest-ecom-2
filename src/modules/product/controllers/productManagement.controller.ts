@@ -8,40 +8,33 @@ import {
   Put,
   Query,
   UseInterceptors,
-  UsePipes,
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
 
+import { AccessTokenPayload } from '@auth/auth.type';
 import {
-  createProductDto,
-  getProductManagementQueryDto,
-  updateProductDto,
+  CreateProductDto,
+  GetProductManangementQueryDto,
+  UpdateProductDto,
 } from '@product/dtos/product.request';
 import {
-  CreateProductDtoType,
-  GetProductManagementQueryDtoType,
-  UpdateProductDtoType,
-} from '@product/product.type';
-import {
-  productListResDto,
-  productResDto,
+  ProductDetailResDto,
+  ProductListResDto,
 } from '@product/dtos/product.response';
-import { AccessTokenPayload } from '@auth/auth.type';
-import { User } from 'src/decorators/user.decorator';
-import { Message } from 'src/decorators/message.decorator';
-import { QueryValidationPipe } from 'src/pipes/queryValidation.pipe';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 import { ProductManagementService } from '@product/services/productManagement.service';
+import { ZodSerializerDto } from 'nestjs-zod';
+import { Message } from 'src/decorators/message.decorator';
+import { User } from 'src/decorators/user.decorator';
+import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
 
 @Controller('product-management/products')
 export class ProductManagementController {
   constructor(private productManagementService: ProductManagementService) {}
 
   @Get()
-  @UsePipes(new QueryValidationPipe(getProductManagementQueryDto))
-  @UseInterceptors(new ValidationInterceptor({ serialize: productListResDto }))
+  @ZodSerializerDto(ProductListResDto)
   async findAll(
-    @Query() query: GetProductManagementQueryDtoType,
+    @Query() query: GetProductManangementQueryDto,
     @User() user: AccessTokenPayload,
   ) {
     return await this.productManagementService.findAll({
@@ -53,7 +46,7 @@ export class ProductManagementController {
   }
 
   @Get(':id')
-  @UseInterceptors(new ValidationInterceptor({ serialize: productResDto }))
+  @ZodSerializerDto(ProductDetailResDto)
   async findById(@Param('id') id: string, @User() user: AccessTokenPayload) {
     return this.productManagementService.findById({
       id: +id,
@@ -64,11 +57,7 @@ export class ProductManagementController {
   }
 
   @Post()
-  @UseInterceptors(new ValidationInterceptor({ validate: createProductDto }))
-  async create(
-    @Body() body: CreateProductDtoType,
-    @User('userId') userId: number,
-  ) {
+  async create(@Body() body: CreateProductDto, @User('userId') userId: number) {
     return await this.productManagementService.create({
       data: body,
       userId,
@@ -76,10 +65,9 @@ export class ProductManagementController {
   }
 
   @Put(':id')
-  @UseInterceptors(new ValidationInterceptor({ validate: updateProductDto }))
   async updateById(
     @Param('id') id: string,
-    @Body() body: UpdateProductDtoType,
+    @Body() body: UpdateProductDto,
     @User() user: AccessTokenPayload,
   ) {
     return await this.productManagementService.updateById({

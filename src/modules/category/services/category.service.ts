@@ -1,13 +1,10 @@
+import { CreateCategoryDto, UpdateCategoryDto } from '@category/dtos/category.request';
 import { Injectable } from '@nestjs/common';
 import {
   CategoryAlreadyExistsException,
   CategoryNotFoundException,
   ParentCategoryNotFoundException,
 } from 'src/modules/category/category.error';
-import {
-  CreateCategoryDtoType,
-  UpdateCategoryDtoType,
-} from 'src/modules/category/category.type';
 import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 
@@ -36,7 +33,7 @@ export class CategoryService {
     }
   }
 
-  async create(data: CreateCategoryDtoType) {
+  async create(data: CreateCategoryDto) {
     try {
       return await this.categoryRepository.create(data);
     } catch (error) {
@@ -44,7 +41,7 @@ export class CategoryService {
     }
   }
 
-  async updateById({ id, data }: { id: number; data: UpdateCategoryDtoType }) {
+  async updateById({ id, data }: { id: number; data: UpdateCategoryDto }) {
     if (id == data.parentCategoryId) {
       throw ParentCategoryNotFoundException;
     }

@@ -1,50 +1,38 @@
-import { Body, Controller, Get, Post, Put, UseInterceptors } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put
+} from '@nestjs/common';
+import { ZodSerializerDto } from 'nestjs-zod';
+
 import { User } from 'src/decorators/user.decorator';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  changePasswordDto,
-  updateProfileDto,
-} from 'src/modules/profile/dtos/profile.request';
-import { profileResDto } from 'src/modules/profile/dtos/profile.response';
+import { ProfileDto } from '@profile/dtos/profile.response';
 import { ProfileService } from 'src/modules/profile/profile.service';
-import {
-  ChangePasswordDtoType,
-  UpdateProfileDtoType,
-} from 'src/modules/profile/profile.type';
+import { ChangePasswordDto, UpdateProfileDto } from '@profile/dtos/profile.request';
 
 @Controller('profile')
 export class ProfileController {
   constructor(private profileService: ProfileService) {}
 
   @Get('profile')
-  @UseInterceptors(new ValidationInterceptor({ serialize: profileResDto }))
+  @ZodSerializerDto(ProfileDto)
   async getProfile(@User('userId') userId: number) {
     return await this.profileService.getProfile(+userId);
   }
 
   @Put()
-  @UseInterceptors(
-    new ValidationInterceptor({
-      validate: updateProfileDto,
-      serialize: profileResDto,
-    }),
-  )
   async updateProfile(
-    @Body() body: UpdateProfileDtoType,
+    @Body() body: UpdateProfileDto,
     @User('userId') id: number,
   ) {
     return await this.profileService.updateProfile({ id, data: body });
   }
 
   @Post('change-password')
-  @UseInterceptors(
-    new ValidationInterceptor({
-      validate: changePasswordDto,
-      serialize: profileResDto,
-    }),
-  )
   async changePassword(
-    @Body() body: ChangePasswordDtoType,
+    @Body() body: ChangePasswordDto,
     @User('userId') id: number,
   ) {
     return await this.profileService.changePassword({ id, data: body });

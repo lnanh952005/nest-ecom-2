@@ -1,7 +1,8 @@
 import z from 'zod';
+import { createZodDto } from 'nestjs-zod';
 import { userSchema } from '@share/schemas/user.schema';
 
-export const updateProfileDto = userSchema
+const updateProfileDto = userSchema
   .pick({
     name: true,
     avatar: true,
@@ -9,7 +10,10 @@ export const updateProfileDto = userSchema
   })
   .strict();
 
-export const changePasswordDto = z.strictObject({
+const changePasswordDto = z.strictObject({
   password: z.string(),
   newPassword: z.string().min(6).max(30),
 });
+
+export class UpdateProfileDto extends createZodDto(updateProfileDto) {}
+export class ChangePasswordDto extends createZodDto(changePasswordDto) {}

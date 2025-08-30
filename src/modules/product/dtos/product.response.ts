@@ -13,8 +13,9 @@ import {
   skuShema,
 } from '@share/schemas/product.schema';
 import { paginationSchema } from '@share/schemas/auth.schema';
+import { createZodDto } from 'nestjs-zod';
 
-export const productResDto = productSchema.extend({
+export const productDetailResDto = productSchema.extend({
   variants: z.array(
     z.object({
       name: z.string(),
@@ -24,7 +25,7 @@ export const productResDto = productSchema.extend({
   productTranslations: z.array(
     productTranslationSchema.omit({ createdAt: true, updatedAt: true }),
   ),
-  sku: z.array(skuShema.omit({ createdAt: true, updatedAt: true })),
+  skus: z.array(skuShema.omit({ createdAt: true, updatedAt: true })),
   brand: brandSchema.extend({
     brandTranslations: z.array(
       brandTranslationSchema.omit({ createdAt: true, updatedAt: true }),
@@ -41,9 +42,15 @@ export const productResDto = productSchema.extend({
 
 export const productListResDto = paginationSchema.extend({
   items: z.array(
-    productResDto.omit({
+    productDetailResDto.omit({
+      skus: true,
       createdAt: true,
       updatedAt: true,
     }),
   ),
 });
+
+export const productTranslationResDto = productTranslationSchema;
+
+export class ProductListResDto extends createZodDto(productListResDto) {}
+export class ProductDetailResDto extends createZodDto(productDetailResDto) {}
