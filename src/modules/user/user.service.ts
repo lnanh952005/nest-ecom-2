@@ -3,9 +3,9 @@ import {
   ConflictException,
   Injectable,
 } from '@nestjs/common';
-import { UserRepository } from '../share/repositories/user.repository';
+import { UserRepository } from './user.repository';
 import { PasswordEncoderService } from '../share/services/passwordEncoder.service';
-import { RoleRepository } from '../share/repositories/role.repository';
+import { RoleRepository } from '../role/role.repository';
 import {
   CannotUpdateOrDeleteYourSelfException,
   DoNotHavePermissionToCreateOrUpdateRoleException,

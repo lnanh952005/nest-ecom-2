@@ -1,6 +1,7 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { paginationSchema, permissionSchema } from '@share/schemas/auth.schema';
+import { paginationSchema } from '@auth/auth.schema';
+import { permissionSchema } from '@permission/permission.schema';
 
 const permissionDetailDto = permissionSchema;
 

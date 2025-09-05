@@ -6,19 +6,19 @@ import {
   Param,
   Post,
   Put,
-  Query,
-  UseInterceptors,
+  Query
 } from '@nestjs/common';
 import { I18nContext } from 'nestjs-i18n';
+import { ZodSerializerDto } from 'nestjs-zod';
+
+import {
+  AddSkuToCartDto,
+  DeleteCartItemQueryDto,
+  UpdateCartItemDto,
+} from 'src/modules/cart/dtos/cart.request';
 import { User } from 'src/decorators/user.decorator';
 import { Message } from 'src/decorators/message.decorator';
 import { CartService } from 'src/modules/cart/cart.service';
-import { ValidationInterceptor } from 'src/interceptors/validation.interceptor';
-import {
-  AddSkuToCartDto,
-  UpdateCartItemDto,
-} from 'src/modules/cart/dtos/cart.request';
-import { ZodSerializerDto } from 'nestjs-zod';
 import { CartListDto } from 'src/modules/cart/dtos/cart.response';
 
 @Controller('cart')
@@ -41,23 +41,34 @@ export class CartController {
   }
 
   @Post()
-  async addToCart(
+  async addSkuToCart(
     @Body() body: AddSkuToCartDto,
     @User('userId') userId: number,
   ) {
-    return await this.cartItemService.addToCart({ data: body, userId });
+    return await this.cartItemService.addSkuToCart({ data: body, userId });
   }
 
   @Put(':id')
-  async updateById(@Param('id') id: string, @Body() body: UpdateCartItemDto) {
-    return this.cartItemService.updateById({ data: body, id: +id });
+  async updateById(
+    @Param('id') cartItemId: string,
+    @Body() body: UpdateCartItemDto,
+    @User('userId') userId: number,
+  ) {
+    return this.cartItemService.updateById({
+      data: body,
+      cartItemId: +cartItemId,
+      userId
+    });
   }
 
-  @Delete(':ids')
+  @Delete()
   @Message('delete successfully')
-  async deleteById(@Param('ids') ids: string, @User('userId') userId: number) {
+  async deleteById(
+    @Query() query: DeleteCartItemQueryDto,
+    @User('userId') userId: number,
+  ) {
     await this.cartItemService.deleteById({
-      ids: ids.split(',').map((e) => +e),
+      ids: query.ids,
       userId,
     });
   }

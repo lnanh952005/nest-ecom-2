@@ -1,4 +1,4 @@
-import { userSchema } from '@share/schemas/user.schema';
+import { userSchema } from '@user/user.schema';
 import { createZodDto } from 'nestjs-zod';
 
 const profileDto = userSchema.omit({

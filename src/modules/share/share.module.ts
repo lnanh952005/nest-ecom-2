@@ -1,26 +1,15 @@
-import { JwtModule } from '@nestjs/jwt';
 import { Global, Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
 
-import { EnvService } from './services/env.service';
-import { TokenService } from './services/token.service';
-import { PrismaService } from './services/prisma.service';
-import { UserRepository } from './repositories/user.repository';
-import { RoleRepository } from './repositories/role.repository';
-import { PasswordEncoderService } from './services/passwordEncoder.service';
-import { VerificationCodeRepository } from './repositories/verificationCode.repository';
-import { RefreshTokenRepository } from './repositories/refreshToken.repository';
-import { DeviceRepository } from './repositories/device.repository';
-import { LanguageRepository } from './repositories/language.repository';
-import { PermissionRepository } from 'src/modules/share/repositories/permission.repository';
+import { UserModule } from '@user/user.module';
+
+import { AuthModule } from '@auth/auth.module';
 import { EmailService } from 'src/modules/share/services/email.service';
-import { BrandRepository } from 'src/modules/share/repositories/brand.repository';
 import { S3Service } from 'src/modules/share/services/s3.service';
-import { BrandTranslationRepository } from 'src/modules/share/repositories/brandTranslation.repository';
-import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
-import { CategoryTranslationRepository } from 'src/modules/share/repositories/categoryTranslation.repository';
-import { CartRepository } from '@share/repositories/cartItem.repository';
-import { SkuRepository } from '@share/repositories/sku.repository';
-import { OrderRepository } from '@share/repositories/order.repository';
+import { EnvService } from './services/env.service';
+import { PasswordEncoderService } from './services/passwordEncoder.service';
+import { PrismaService } from './services/prisma.service';
+import { TokenService } from './services/token.service';
 
 const Service = [
   PrismaService,
@@ -30,27 +19,11 @@ const Service = [
   EmailService,
   S3Service,
 ];
-const Repository = [
-  UserRepository,
-  PermissionRepository,
-  RoleRepository,
-  VerificationCodeRepository,
-  RefreshTokenRepository,
-  DeviceRepository,
-  LanguageRepository,
-  BrandRepository,
-  BrandTranslationRepository,
-  CategoryRepository,
-  CategoryTranslationRepository,
-  CartRepository,
-  SkuRepository,
-  OrderRepository
-];
 
 @Global()
 @Module({
-  imports: [JwtModule],
-  providers: [...Service, ...Repository],
-  exports: [...Service, ...Repository],
+  imports: [JwtModule, UserModule, AuthModule],
+  providers: [...Service],
+  exports: [...Service],
 })
 export class ShareModule {}

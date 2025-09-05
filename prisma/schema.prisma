@@ -115,7 +115,7 @@ model VerificationCode {
 model PaymentTransaction {
   id                 Int      @id @default(autoincrement())
   gateway            String
-  accountNumber      String
+  accountNumber      String?
   subAccount         String?
   amountIn           Int      @default(0)
   amountOut          Int      @default(0)
@@ -123,9 +123,18 @@ model PaymentTransaction {
   code               String?
   transactionContent String?
   referenceNumber    String?
-  body               String?
+  body               String?  @db.Text
   transactionDate    DateTime @default(now())
   createdAt          DateTime @default(now())
+}
+
+model Payment {
+  id        Int           @id @default(autoincrement())
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  orders Order[]
 }
 
 model Product {
@@ -158,36 +167,56 @@ model Product {
 }
 
 model ProductSkuSnapshot {
-  id          Int       @id @default(autoincrement())
+  id          Int    @id @default(autoincrement())
   productName String
   skuPrice    Float
   image       String
   skuValue    String
   quantity    Int
-  skuId       Int?
-  productId   Int?
-  orderId     Int?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
-  product     Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
-  sku         Sku?      @relation(fields: [skuId], references: [id], onDelete: SetNull)
-  order       Order?    @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  skuId                Int?
+  productId            Int?
+  productTranslationId Int?
+  orderId              Int?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  product             Product?             @relation(fields: [productId], references: [id], onDelete: SetNull)
+  productTranslations ProductTranslation[]
+  sku                 Sku?                 @relation(fields: [skuId], references: [id], onDelete: SetNull)
+  order               Order?               @relation(fields: [orderId], references: [id], onDelete: SetNull)
 }
 
 model Order {
-  id        Int         @id @default(autoincrement())
+  id     Int         @id @default(autoincrement())
+  status OrderStatus
+
   userId    Int?
   shopId    Int?
-  status    OrderStatus
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @updatedAt
+  paymentId Int
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
   deletedAt DateTime?
 
   user                User?                @relation(name: "buyer", fields: [userId], references: [id], onDelete: SetNull)
   shop                User?                @relation(name: "seller", fields: [shopId], references: [id], onDelete: SetNull)
+  payment             Payment              @relation(fields: [paymentId], references: [id])
   productSkuSnapshots ProductSkuSnapshot[]
   products            Product[]
+  orderDetail         OrderDetail?
+}
+
+model OrderDetail {
+  orderId Int @id
+
+  name        String
+  phoneNumber String
+  address     String
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
 }
 
 model CartItem {
@@ -332,17 +361,19 @@ model UserTranslation {
 }
 
 model ProductTranslation {
-  id         Int      @id @default(autoincrement())
-  name       String
-  desc       String
-  productId  Int
-  languageId String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  name                 String
+  desc                 String
+  productId            Int
+  languageId           String
+  productSkuSnapshotId Int?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
   // deletedAt  DateTime?
 
-  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
-  language Language @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  product            Product             @relation(fields: [productId], references: [id], onDelete: Cascade)
+  language           Language            @relation(fields: [languageId], references: [id], onDelete: Cascade)
+  productSkuSnapshot ProductSkuSnapshot? @relation(fields: [productSkuSnapshotId], references: [id])
 
   @@unique([productId, languageId])
 }
@@ -417,4 +448,10 @@ enum RoleEnum {
   MANAGER
   CLIENT
   SELLER
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
 }

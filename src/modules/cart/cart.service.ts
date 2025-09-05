@@ -1,13 +1,16 @@
+import { CartRepository } from '@cart/cart.repository';
 import { Injectable } from '@nestjs/common';
 import { ProductNotFoundException } from '@product/product.error';
-import { CartRepository } from '@share/repositories/cartItem.repository';
-import { SkuRepository } from '@share/repositories/sku.repository';
+import { SkuRepository } from '@product/repositories/sku.repository';
 
 import {
   SkuAlreadyOutOfStockException,
   SkuNotFoundException,
 } from 'src/modules/cart/cart.error';
-import { AddSkuToCartDto, UpdateCartItemDto } from 'src/modules/cart/dtos/cart.request';
+import {
+  AddSkuToCartDto,
+  UpdateCartItemDto,
+} from 'src/modules/cart/dtos/cart.request';
 
 @Injectable()
 export class CartService {
@@ -30,27 +33,51 @@ export class CartService {
     return this.cartRepository.findAll({ languageId, limit, page, userId });
   }
 
-  async addToCart({
+  async addSkuToCart({
     data,
     userId,
   }: {
     data: AddSkuToCartDto;
     userId: number;
   }) {
-    await this.validateSku(data);
-    return await this.cartRepository.upsert({ data, userId });
+    await this.validateSku({
+      quantity: data.quantity,
+      skuId: data.skuId,
+      userId,
+    });
+    return await this.cartRepository.addSkuToCart({ data, userId });
   }
 
-  async updateById({ data, id }: { id: number; data: UpdateCartItemDto }) {
-    await this.validateSku(data);
-    return await this.cartRepository.updateById({ data, id });
+  async updateById({
+    data,
+    cartItemId,
+    userId,
+  }: {
+    cartItemId: number;
+    userId: number;
+    data: UpdateCartItemDto;
+  }) {
+    await this.validateSku({
+      quantity: data.quantity,
+      skuId: data.skuId,
+      userId,
+    });
+    return await this.cartRepository.updateById({ data, cartItemId });
   }
 
   deleteById({ ids, userId }: { userId: number; ids: number[] }) {
     return this.cartRepository.deleteById({ userId, ids });
   }
 
-  async validateSku({ quantity, skuId }: AddSkuToCartDto) {
+  async validateSku({
+    quantity,
+    skuId,
+    userId,
+  }: {
+    quantity: number;
+    skuId: number;
+    userId: number;
+  }) {
     const sku = await this.skuRepository.getDetailById(skuId).catch(() => {
       throw SkuNotFoundException;
     });
@@ -58,11 +85,19 @@ export class CartService {
       throw SkuAlreadyOutOfStockException;
     }
     if (
-      !sku.product ||
       sku.product.publishedAt == null ||
       sku.product.publishedAt > new Date()
     ) {
       throw ProductNotFoundException;
+    }
+    const cartIem = await this.cartRepository.findBySkuId({
+      skuId,
+      userId,
+    });
+    if (cartIem) {
+      if (cartIem.sku.stock < cartIem.quantity + quantity) {
+        throw SkuAlreadyOutOfStockException;
+      }
     }
   }
 }

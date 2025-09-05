@@ -3,10 +3,14 @@ import {
   ForbiddenException,
   Injectable,
 } from '@nestjs/common';
-import { CreateProductDto, GetProductManangementQueryDto, UpdateProductDto } from '@product/dtos/product.request';
+import {
+  CreateProductDto,
+  GetProductManangementQueryDto,
+  UpdateProductDto,
+} from '@product/dtos/product.request';
 import { ProductNotFoundException } from '@product/product.error';
 // import { CreateProductDtoType, GetProductManagementQueryDtoType, UpdateProductDtoType } from '@product/product.type';
-import { ProductRepository } from '@share/repositories/product.repository';
+import { ProductRepository } from '@product/repositories/product.repository';
 
 @Injectable()
 export class ProductManagementService {
@@ -92,13 +96,7 @@ export class ProductManagementService {
     };
   }
 
-  async create({
-    userId,
-    data,
-  }: {
-    data: CreateProductDto;
-    userId: number;
-  }) {
+  async create({ userId, data }: { data: CreateProductDto; userId: number }) {
     try {
       return await this.productRepository.create({ data, createdBy: userId });
     } catch (error) {

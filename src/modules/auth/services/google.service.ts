@@ -4,11 +4,11 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 import { EnvService } from 'src/modules/share/services/env.service';
 import { TokenService } from 'src/modules/share/services/token.service';
-import { RoleRepository } from 'src/modules/share/repositories/role.repository';
-import { UserRepository } from 'src/modules/share/repositories/user.repository';
-import { DeviceRepository } from 'src/modules/share/repositories/device.repository';
+import { RoleRepository } from '@role/role.repository';
+import { UserRepository } from '@user/user.repository';
+import { DeviceRepository } from '@auth/repositories/device.repository';
 import { PasswordEncoderService } from 'src/modules/share/services/passwordEncoder.service';
-import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
+import { RefreshTokenRepository } from '@auth/repositories/refreshToken.repository';
 
 @Injectable()
 export class GoogleService {

@@ -30,7 +30,12 @@ export class ProductTranslationRepository {
 
   create(data: CreateProductTranslationDto) {
     return this.prismaService.productTranslation.create({
-      data,
+      data: {
+        name:data.name,
+        desc: data.desc,
+        languageId: data.languageId,
+        productId: data.productId,
+      }
     });
   }
 

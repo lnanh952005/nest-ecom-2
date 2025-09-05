@@ -5,7 +5,7 @@ import {
   RoleNotFoundException,
 } from 'src/modules/role/role.error';
 import { CreateRoleDto, UpdateRoleDto } from '@role/dtos/role.request';
-import { RoleRepository } from 'src/modules/share/repositories/role.repository';
+import { RoleRepository } from '@role/role.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 
 @Injectable()

@@ -8,7 +8,7 @@ import {
   isUniqueConstraintPrismaError,
   RecordNotFoundException,
 } from 'src/modules/share/utils/prismaError.util';
-import { ProductTranslationRepository } from 'src/modules/share/repositories/productTranslation.repository';
+import { ProductTranslationRepository } from '@product/repositories/productTranslation.repository';
 import {
   CreateProductTranslationDto,
   UpdateProductTranslationDto,

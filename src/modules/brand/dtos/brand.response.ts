@@ -1,10 +1,7 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import {
-  brandSchema,
-  brandTranslationSchema,
-} from '@share/schemas/brand.schema';
-import { paginationSchema } from '@share/schemas/auth.schema';
+import { brandSchema, brandTranslationSchema } from '@brand/brand.schema';
+import { paginationSchema } from '@auth/auth.schema';
 
 const brandDetailDto = brandSchema
   .omit({

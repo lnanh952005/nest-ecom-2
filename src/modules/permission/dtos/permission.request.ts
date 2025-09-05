@@ -1,7 +1,6 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
-
-import { permissionSchema } from '@share/schemas/auth.schema';
+import { permissionSchema } from '@permission/permission.schema';
 
 const createPermissionDto = permissionSchema
   .pick({

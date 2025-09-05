@@ -1,7 +1,7 @@
 import {
   categorySchema,
   categoryTranslationSchema,
-} from '@share/schemas/category.schema';
+} from '@category/category.schema';
 import { createZodDto } from 'nestjs-zod';
 
 // const getParentCategoryIdQueryDto = z.strictObject({

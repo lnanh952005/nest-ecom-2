@@ -13,7 +13,7 @@ export class EnvService {
 
   OTP_EXPIRE: string;
 
-  X_API_KEY: string;
+  PAYMENT_API_KEY: string;
 
   RESEND_API_KEY: string;
 
@@ -42,7 +42,7 @@ export class EnvService {
     this.ACCESS_TOKEN_EXPIRE = process.env.ACCESS_TOKEN_EXPIRE as string;
     this.REFRESH_TOKEN_EXPIRE = process.env.REFRESH_TOKEN_EXPIRE as string;
     this.OTP_EXPIRE = process.env.OTP_EXPIRE as string;
-    this.X_API_KEY = process.env.X_API_KEY as string;
+    this.PAYMENT_API_KEY = process.env.PAYMENT_API_KEY as string;
     this.RESEND_API_KEY = process.env.RESEND_API_KEY as string;
     this.GG_CLIENT_ID = process.env.GG_CLIENT_ID as string;
     this.GG_CLIENT_SECRET = process.env.GG_CLIENT_SECRET as string;

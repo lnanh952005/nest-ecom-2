@@ -1,7 +1,8 @@
 import z from 'zod';
-import { userSchema } from '@share/schemas/user.schema';
-import { paginationSchema, roleSchema } from '@share/schemas/auth.schema';
 import { createZodDto } from 'nestjs-zod';
+import { userSchema } from '@user/user.schema';
+import { roleSchema } from '@role/role.schema';
+import { paginationSchema } from '@auth/auth.schema';
 
 const userDetailDto = userSchema
   .omit({

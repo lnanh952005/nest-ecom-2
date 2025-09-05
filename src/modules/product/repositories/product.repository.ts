@@ -101,8 +101,8 @@ export class ProductRepository {
     };
   }
 
-  findById({ id, languageId }: { id: number; languageId: string }) {
-    return this.prismaService.product.findUniqueOrThrow({
+  async findById({ id, languageId }: { id: number; languageId: string }) {
+    return await this.prismaService.product.findUniqueOrThrow({
       where: {
         id,
         publishedAt: {

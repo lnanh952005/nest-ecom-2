@@ -1,5 +1,6 @@
 import path from 'path';
 import { Module } from '@nestjs/common';
+import { BullModule } from '@nestjs/bullmq';
 import { AcceptLanguageResolver, I18nModule, QueryResolver } from 'nestjs-i18n';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
@@ -23,6 +24,7 @@ import { CartModule } from 'src/modules/cart/cart.module';
 import { ZodSerializerInterceptor } from 'nestjs-zod';
 import { CustomZodValidationPipe } from 'src/pipes/customZodValidation.pipe';
 import { OrderModule } from 'src/modules/order/order.module';
+import { SerializationExceptionFilter } from 'src/filters/serializationException.filter';
 
 @Module({
   imports: [
@@ -40,6 +42,16 @@ import { OrderModule } from 'src/modules/order/order.module';
     ProductModule,
     CartModule,
     OrderModule,
+    BullModule.forRoot({
+      connection: {
+        // host: 'localhost',
+        // port: 6379
+        username: 'default',
+        password: 'vVfbu5WajB4DcA0ByAss71FSXaEtV2MJ',
+        host: 'redis-13802.crce194.ap-seast-1-1.ec2.redns.redis-cloud.com',
+        port: 13802,
+      },
+    }),
     I18nModule.forRoot({
       fallbackLanguage: 'all',
       loaderOptions: {
@@ -76,10 +88,10 @@ import { OrderModule } from 'src/modules/order/order.module';
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
-    // {
-    //   provide: APP_FILTER,
-    //   useClass: ZodErrorFilter,
-    // },
+    {
+      provide: APP_FILTER,
+      useClass: SerializationExceptionFilter
+    }
   ],
 })
 export class AppModule {}

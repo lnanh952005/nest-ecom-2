@@ -1,18 +1,15 @@
 import z from 'zod';
-import {
-  brandSchema,
-  brandTranslationSchema,
-} from '@share/schemas/brand.schema';
+import { brandSchema, brandTranslationSchema } from '@brand/brand.schema';
 import {
   categorySchema,
   categoryTranslationSchema,
-} from '@share/schemas/category.schema';
+} from '@category/category.schema';
 import {
   productSchema,
   productTranslationSchema,
   skuShema,
-} from '@share/schemas/product.schema';
-import { paginationSchema } from '@share/schemas/auth.schema';
+} from '@product/product.schema';
+import { paginationSchema } from '@auth/auth.schema';
 import { createZodDto } from 'nestjs-zod';
 
 export const productDetailResDto = productSchema.extend({

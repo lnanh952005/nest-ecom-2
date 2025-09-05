@@ -5,10 +5,10 @@ import {
   productSchema,
   productTranslationSchema,
   skuShema,
-} from '@share/schemas/product.schema';
-import { userSchema } from '@share/schemas/user.schema';
-import { cartItemSchema } from '@share/schemas/cart.schema';
-import { paginationSchema } from '@share/schemas/auth.schema';
+} from '@product/product.schema';
+import { userSchema } from '@user/user.schema';
+import { cartItemSchema } from '@cart/cart.schema';
+import { paginationSchema } from '@auth/auth.schema';
 
 const cartDetailDto = z.object({
   shop: userSchema.pick({

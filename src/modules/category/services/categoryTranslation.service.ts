@@ -5,14 +5,15 @@ import {
   CategoryTranslationNotFoundException,
 } from 'src/modules/category/category.error';
 import { LanguageNotFoundException } from 'src/modules/language/language.error';
-import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
-import { LanguageRepository } from 'src/modules/share/repositories/language.repository';
+import { CategoryRepository } from '@category/repositories/category.repository';
+
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
-import { CategoryTranslationRepository } from 'src/modules/share/repositories/categoryTranslation.repository';
+import { CategoryTranslationRepository } from '@category/repositories/categoryTranslation.repository';
 import {
   CreateCategoryTranslationDto,
   UpdateCategoryTranslationDto,
 } from '@category/dtos/category.request';
+import { LanguageRepository } from '@language/language.repository';
 
 @Injectable()
 export class CategoryTranslationService {

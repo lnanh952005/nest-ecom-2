@@ -4,9 +4,7 @@ import { I18nContext } from 'nestjs-i18n';
 import { ZodSerializerDto } from 'nestjs-zod';
 import { Public } from 'src/decorators/public.decorator';
 import { GetProductQueryDto } from 'src/modules/product/dtos/product.request';
-import {
-  ProductListResDto
-} from 'src/modules/product/dtos/product.response';
+import { ProductDetailResDto, ProductListResDto } from 'src/modules/product/dtos/product.response';
 import { ProductService } from 'src/modules/product/services/product.service';
 
 @Controller('products')
@@ -24,7 +22,7 @@ export class ProductController {
   }
 
   @Get(':id')
-  @ZodSerializerDto(ProductListResDto)
+  @ZodSerializerDto(ProductDetailResDto)
   async findById(@Param('id') id: string) {
     return await this.productService.findById({
       id: +id,

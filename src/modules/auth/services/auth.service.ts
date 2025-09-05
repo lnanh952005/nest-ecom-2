@@ -14,11 +14,11 @@ import {
 import { TwoFactorAuthService } from './twoFactorAuth.service';
 import { TokenService } from '../../share/services/token.service';
 import { VerificationCodeService } from './verificationCode.service';
-import { UserRepository } from '../../share/repositories/user.repository';
-import { RoleRepository } from '../../share/repositories/role.repository';
-import { DeviceRepository } from 'src/modules/share/repositories/device.repository';
+import { UserRepository } from '../../user/user.repository';
+import { RoleRepository } from '../../role/role.repository';
+import { DeviceRepository } from '@auth/repositories/device.repository';
 import { PasswordEncoderService } from '../../share/services/passwordEncoder.service';
-import { RefreshTokenRepository } from 'src/modules/share/repositories/refreshToken.repository';
+import { RefreshTokenRepository } from '@auth/repositories/refreshToken.repository';
 import {
   ForgotPasswordDto,
   LoginDto,

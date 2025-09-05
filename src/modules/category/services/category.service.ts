@@ -1,11 +1,14 @@
-import { CreateCategoryDto, UpdateCategoryDto } from '@category/dtos/category.request';
+import {
+  CreateCategoryDto,
+  UpdateCategoryDto,
+} from '@category/dtos/category.request';
 import { Injectable } from '@nestjs/common';
 import {
   CategoryAlreadyExistsException,
   CategoryNotFoundException,
   ParentCategoryNotFoundException,
 } from 'src/modules/category/category.error';
-import { CategoryRepository } from 'src/modules/share/repositories/category.repository';
+import { CategoryRepository } from '@category/repositories/category.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 
 @Injectable()

@@ -1,6 +1,6 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
-import { userSchema } from '@share/schemas/user.schema';
+import { userSchema } from '@user/user.schema';
 
 const updateProfileDto = userSchema
   .pick({

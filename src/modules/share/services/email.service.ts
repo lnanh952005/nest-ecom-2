@@ -6,8 +6,7 @@ import { Injectable } from '@nestjs/common';
 
 import { EnvService } from 'src/modules/share/services/env.service';
 import { createOtpCode } from 'src/modules/share/utils/helper.util';
-import { UserRepository } from 'src/modules/share/repositories/user.repository';
-import { VerificationCodeRepository } from 'src/modules/share/repositories/verificationCode.repository';
+import { UserRepository } from '@user/user.repository';
 
 import {
   EmailExistedException,
@@ -15,6 +14,7 @@ import {
   InvalidOTPException,
 } from '../../auth/auth.error';
 import { SendOtpDto } from '@auth/dtos/auth.request';
+import { VerificationCodeRepository } from '@auth/repositories/verificationCode.repository';
 
 @Injectable()
 export class EmailService {

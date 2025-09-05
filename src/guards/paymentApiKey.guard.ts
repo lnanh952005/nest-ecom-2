@@ -6,14 +6,15 @@ import {
 import { Observable } from 'rxjs';
 import { EnvService } from 'src/modules/share/services/env.service';
 
-export class ApiKeyGuard implements CanActivate {
+export class PaymentApiKeyGuard implements CanActivate {
   constructor(private envService: EnvService) {}
+
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
     const req = context.switchToHttp().getRequest();
-    const xApiKey = req.headers['x-api-key'];
-    if (xApiKey != this.envService.X_API_KEY) {
+    const paymentApiKey = req.headers['payment-api-key'];
+    if (paymentApiKey != this.envService.PAYMENT_API_KEY) {
       throw new UnauthorizedException();
     }
     return true;

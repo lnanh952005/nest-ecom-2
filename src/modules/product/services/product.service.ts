@@ -3,7 +3,7 @@ import { GetProductQueryDto } from '@product/dtos/product.request';
 
 // import { GetProductQueryDtoType } from 'src/modules/product/product.type';
 import { ProductNotFoundException } from 'src/modules/product/product.error';
-import { ProductRepository } from 'src/modules/share/repositories/product.repository';
+import { ProductRepository } from '@product/repositories/product.repository';
 
 @Injectable()
 export class ProductService {
@@ -43,19 +43,19 @@ export class ProductService {
   }
 
   async findById({ id, languageId }: { id: number; languageId: string }) {
-    try {
-      const product = await this.productRepository.findById({ id, languageId });
-      const { variants, ...data } = product;
-      const newVariants = variants.map((e) => ({
-        name: e.name,
-        options: e.variantOptions.map((o) => o.value),
-      }));
-      return {
-        ...data,
-        variants: newVariants,
-      };
-    } catch (error) {
-      throw ProductNotFoundException;
-    }
+    const product = await this.productRepository
+      .findById({ id, languageId })
+      .catch(() => {
+        throw ProductNotFoundException;
+      });
+    const { variants, ...data } = product;
+    const newVariants = variants.map((e) => ({
+      name: e.name,
+      options: e.variantOptions.map((o) => o.value),
+    }));
+    return {
+      ...data,
+      variants: newVariants,
+    };
   }
 }

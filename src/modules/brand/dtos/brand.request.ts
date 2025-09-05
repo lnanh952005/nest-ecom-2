@@ -1,7 +1,4 @@
-import {
-  brandSchema,
-  brandTranslationSchema,
-} from '@share/schemas/brand.schema';
+import { brandSchema, brandTranslationSchema } from '@brand/brand.schema';
 import { createZodDto } from 'nestjs-zod';
 
 const createBrandDto = brandSchema

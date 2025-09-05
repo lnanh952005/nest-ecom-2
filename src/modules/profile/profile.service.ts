@@ -8,7 +8,7 @@ import {
   PhoneNumberAlreadyExistsException,
 } from 'src/modules/profile/profile.error';
 import { EmailNotFoundException } from 'src/modules/auth/auth.error';
-import { UserRepository } from 'src/modules/share/repositories/user.repository';
+import { UserRepository } from '@user/user.repository';
 import { PasswordEncoderService } from 'src/modules/share/services/passwordEncoder.service';
 
 @Injectable()

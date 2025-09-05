@@ -1,5 +1,5 @@
 import { createZodDto } from 'nestjs-zod';
-import { languageSchema } from '@share/schemas/language.schema';
+import { languageSchema } from '@language/language.schema';
 
 const createLanguageDto = languageSchema
   .pick({

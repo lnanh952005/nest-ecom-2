@@ -1,12 +1,12 @@
 import z from 'zod';
 import { createZodDto } from 'nestjs-zod';
 
-import { orderSchema } from '@share/schemas/order.schema';
-import { paginationSchema } from '@share/schemas/auth.schema';
-import { productSkuSnapshotSchema } from '@share/schemas/product.schema';
+import { orderSchema } from '@order/order.schema';
+import { paginationSchema } from '@auth/auth.schema';
+import { productSkuSnapshotSchema } from '@product/product.schema';
 
 const orderDetailDto = orderSchema.extend({
-  productSkuSnapShots: z.array(productSkuSnapshotSchema),
+  productSkuSnapshots: z.array(productSkuSnapshotSchema),
 });
 
 const orderListDto = paginationSchema.extend({

@@ -6,11 +6,14 @@ import {
   BrandTranslationNotFoundException,
 } from 'src/modules/brand/brand.error';
 import { LanguageNotFoundException } from 'src/modules/language/language.error';
-import { BrandRepository } from 'src/modules/share/repositories/brand.repository';
-import { LanguageRepository } from 'src/modules/share/repositories/language.repository';
+import { BrandRepository } from '@brand/repositories/brand.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
-import { BrandTranslationRepository } from 'src/modules/share/repositories/brandTranslation.repository';
-import { CreateBrandTranslationDto, UpdateBrandTranslationDto } from '@brand/dtos/brand.request';
+import { BrandTranslationRepository } from '@brand/repositories/brandTranslation.repository';
+import {
+  CreateBrandTranslationDto,
+  UpdateBrandTranslationDto,
+} from '@brand/dtos/brand.request';
+import { LanguageRepository } from '@language/language.repository';
 
 @Injectable()
 export class BrandTranslationService {
@@ -72,7 +75,7 @@ export class BrandTranslationService {
     await this.brandRepository
       .findById({
         id: data.brandId,
-        languageId: "all",
+        languageId: 'all',
       })
       .catch(() => {
         throw BrandNotFoundException;

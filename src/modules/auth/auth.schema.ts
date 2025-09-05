@@ -8,26 +8,6 @@ export const paginationSchema = z.object({
   totalItems: z.number(),
 });
 
-export const roleSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  desc: z.string().nullable(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-  deletedAt: z.date().nullable(),
-});
-
-export const permissionSchema = z.object({
-  id: z.number(),
-  name: z.string(),
-  desc: z.string().nullable(),
-  path: z.string(),
-  method: z.nativeEnum(HttpMethod),
-  module: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-});
-
 export const deviceSchema = z.object({
   id: z.number(),
   ip: z.string(),

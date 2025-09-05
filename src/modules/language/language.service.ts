@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { LanguageRepository } from '../share/repositories/language.repository';
+
 import {
   LanguageExistedException,
   LanguageNotFoundException,
@@ -8,6 +8,7 @@ import {
   CreateLanguageDto,
   UpdateLanguageDto,
 } from '@language/dtos/language.request';
+import { LanguageRepository } from '@language/language.repository';
 
 @Injectable()
 export class LanguageService {

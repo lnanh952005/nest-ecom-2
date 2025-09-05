@@ -6,7 +6,7 @@ import {
   BrandAlreadyExistsException,
   BrandNotFoundException,
 } from 'src/modules/brand/brand.error';
-import { BrandRepository } from 'src/modules/share/repositories/brand.repository';
+import { BrandRepository } from '@brand/repositories/brand.repository';
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
 
 @Injectable()

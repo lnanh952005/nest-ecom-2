@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '@share/services/prisma.service';
-import { AddSkuToCartDto, UpdateCartItemDto } from 'src/modules/cart/dtos/cart.request';
+import {
+  AddSkuToCartDto,
+  UpdateCartItemDto,
+} from 'src/modules/cart/dtos/cart.request';
 import { CartDetailDto } from 'src/modules/cart/dtos/cart.response';
 
 @Injectable()
@@ -81,7 +84,19 @@ export class CartRepository {
     };
   }
 
-  upsert({ data, userId }: { data: AddSkuToCartDto; userId: number }) {
+  findBySkuId({ skuId, userId }: { skuId: number; userId: number }) {
+    return this.prismaService.cartItem.findFirstOrThrow({
+      where: {
+        skuId,
+        userId,
+      },
+      include: {
+        sku: true,
+      },
+    });
+  }
+
+  addSkuToCart({ data, userId }: { data: AddSkuToCartDto; userId: number }) {
     return this.prismaService.cartItem.upsert({
       where: {
         userId_skuId: {
@@ -91,8 +106,8 @@ export class CartRepository {
       },
       update: {
         quantity: {
-          increment: data.quantity
-        }
+          increment: data.quantity,
+        },
       },
       create: {
         quantity: data.quantity,
@@ -102,10 +117,16 @@ export class CartRepository {
     });
   }
 
-  updateById({ data, id }: { id: number; data: UpdateCartItemDto }) {
+  updateById({
+    data,
+    cartItemId,
+  }: {
+    cartItemId: number;
+    data: UpdateCartItemDto;
+  }) {
     return this.prismaService.cartItem.update({
       where: {
-        id,
+        id: cartItemId,
       },
       data: {
         skuId: data.skuId,

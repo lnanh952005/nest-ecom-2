@@ -7,8 +7,9 @@ import {
   CreatePermissionDto,
   UpdatePermissionDto,
 } from '@permission/dtos/permission.request';
-import { PermissionRepository } from '../share/repositories/permission.repository';
+
 import { isUniqueConstraintPrismaError } from 'src/modules/share/utils/prismaError.util';
+import { PermissionRepository } from '@permission/permission.repository';
 
 @Injectable()
 export class PermissionService {

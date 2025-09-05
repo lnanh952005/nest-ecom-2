@@ -1,8 +1,5 @@
 import z from 'zod';
-import {
-  productTranslationSchema,
-  skuShema,
-} from '@share/schemas/product.schema';
+import { productTranslationSchema, skuShema } from '@product/product.schema';
 import { generateSkus } from '@share/utils/generateSku';
 import { createZodDto } from 'nestjs-zod';
 

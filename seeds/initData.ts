@@ -169,7 +169,7 @@ const main = async () => {
   });
 
   await prismaService.category.createMany({
-    data: new Array(100).fill(0).map((e, i) => ({
+    data: new Array(10).fill(0).map((e, i) => ({
       name: faker.commerce.department() + i,
       logo: faker.image.urlPicsumPhotos(),
       parentCategoryId:
@@ -211,9 +211,9 @@ const main = async () => {
         updatedBy: createdById,
         brandId: brands[crypto.randomInt(brands.length)].id,
         categories: {
-          connect: new Array(100)
+          connect: new Array(crypto.randomInt(1, 11))
             .fill(0)
-            .map((e) => ({ id: crypto.randomInt(1, 101) })),
+            .map((e) => ({ id: crypto.randomInt(1, 11) })),
         },
         skus: {
           createMany: {
