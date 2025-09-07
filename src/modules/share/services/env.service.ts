@@ -34,6 +34,8 @@ export class EnvService {
 
   S3_ENDPOINT: string;
 
+  REDIS_URL: string;
+
   constructor() {
     this.APP_NAME = process.env.APP_NAME as string;
     this.ROOT_ENDPOINT = process.env.ROOT_ENDPOINT as string;
@@ -57,5 +59,6 @@ export class EnvService {
 
     this.S3_SECRET_KEY = process.env.S3_SECRET_KEY as string;
     this.S3_ENDPOINT = process.env.S3_ENDPOINT as string;
+    this.REDIS_URL = process.env.REDIS_URL as string;
   }
 }

@@ -94,6 +94,7 @@ export class CartService {
       skuId,
       userId,
     });
+
     if (cartIem) {
       if (cartIem.sku.stock < cartIem.quantity + quantity) {
         throw SkuAlreadyOutOfStockException;

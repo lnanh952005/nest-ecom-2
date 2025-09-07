@@ -25,6 +25,8 @@ import { ZodSerializerInterceptor } from 'nestjs-zod';
 import { CustomZodValidationPipe } from 'src/pipes/customZodValidation.pipe';
 import { OrderModule } from 'src/modules/order/order.module';
 import { SerializationExceptionFilter } from 'src/filters/serializationException.filter';
+import { PaymentModule } from 'src/modules/payment/payment.module';
+import { EnvService } from '@share/services/env.service';
 
 @Module({
   imports: [
@@ -42,15 +44,14 @@ import { SerializationExceptionFilter } from 'src/filters/serializationException
     ProductModule,
     CartModule,
     OrderModule,
-    BullModule.forRoot({
-      connection: {
-        // host: 'localhost',
-        // port: 6379
-        username: 'default',
-        password: 'vVfbu5WajB4DcA0ByAss71FSXaEtV2MJ',
-        host: 'redis-13802.crce194.ap-seast-1-1.ec2.redns.redis-cloud.com',
-        port: 13802,
-      },
+    PaymentModule,
+    BullModule.forRootAsync({
+      inject: [EnvService],
+      useFactory:(env:EnvService) => ({
+        connection: {
+          url: env.REDIS_URL,
+        }
+      })
     }),
     I18nModule.forRoot({
       fallbackLanguage: 'all',
@@ -90,8 +91,8 @@ import { SerializationExceptionFilter } from 'src/filters/serializationException
     },
     {
       provide: APP_FILTER,
-      useClass: SerializationExceptionFilter
-    }
+      useClass: SerializationExceptionFilter,
+    },
   ],
 })
 export class AppModule {}

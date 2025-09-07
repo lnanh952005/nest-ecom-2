@@ -85,7 +85,7 @@ export class CartRepository {
   }
 
   findBySkuId({ skuId, userId }: { skuId: number; userId: number }) {
-    return this.prismaService.cartItem.findFirstOrThrow({
+    return this.prismaService.cartItem.findFirst({
       where: {
         skuId,
         userId,

@@ -17,7 +17,7 @@ export class OrderProducer {
         paymentId,
       },
       {
-        delay: 20 * 1000,
+        delay: 10 * 1000,
         jobId: paymentId.toString(),
         removeOnComplete: true,
         removeOnFail: true,

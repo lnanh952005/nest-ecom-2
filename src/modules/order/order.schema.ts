@@ -5,6 +5,7 @@ export const orderSchema = z.object({
   id: z.number(),
   userId: z.number().nullable(),
   shopId: z.number().nullable(),
+  paymentId: z.number(),
   status: z.nativeEnum(OrderStatus),
   createdAt: z.date(),
   updatedAt: z.date(),

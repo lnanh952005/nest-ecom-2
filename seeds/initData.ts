@@ -7,7 +7,7 @@ import { PrismaClient, RoleEnum } from '@prisma/client';
 import { AppModule } from 'src/app.module';
 import { createVnPhone } from '@share/utils/helper.util';
 
-const CLIENT_MODULE = ['auth', 'media', 'profile', 'cart', 'orders'];
+const CLIENT_MODULE = ['auth', 'media', 'profile', 'cart', 'orders','payment'];
 const SELLER_MODULE = [
   'auth',
   'media',
@@ -16,6 +16,7 @@ const SELLER_MODULE = [
   'profile',
   'cart',
   'orders',
+  'payment'
 ];
 
 const main = async () => {
